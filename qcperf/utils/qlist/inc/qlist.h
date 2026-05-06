@@ -33,8 +33,8 @@
  * @author Skand Gupta (skangupt@qti.qualcomm.com)
  */
 
-#ifndef qlist_H
-#define qlist_H
+#ifndef QLIST_H
+#define QLIST_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -42,7 +42,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "QMutex.h"
+#include "qmutex.h"
 
 /**
  * @brief Return codes for list operations
@@ -286,4 +286,4 @@ enum QListReturnCode list_clear_all(struct List* p_list);
  */
 enum QListReturnCode list_delete(struct List** pp_list);
 
-#endif /* qlist_H */
+#endif /* QLIST_H */

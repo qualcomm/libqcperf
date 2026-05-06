@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.13.5)
 
 add_library(QcPerfQSleep STATIC
-    src/QSleep.c
+    src/qsleep.c
 )
 
 # Include public headers

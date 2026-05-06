@@ -52,7 +52,7 @@
 #include "cpu_thermal_etw_library.h"
 #include "passive_cooling.h"
 #include "thermal_common.h"
-#include "QThread.h"
+#include "qthread.h"
 #include "qtime.h"
 
 // Static variables

@@ -29,40 +29,43 @@
 
 /**
  * @file qthread.c
- * @brief Windows implementation of thread management functions
+ * @brief Linux implementation of thread management functions
  * @author Skand Gupta (skangupt@qti.qualcomm.com)
  *
  * This file implements the thread management functions defined in qthread.h
- * for Windows platforms. It provides a cross-platform abstraction layer over
- * the Windows threading APIs, including thread creation, joining, termination,
+ * for Linux platforms. It provides a cross-platform abstraction layer over
+ * the POSIX threading APIs, including thread creation, joining, termination,
  * and other thread management operations.
  *
- * The implementation uses Windows API functions like CreateThread, WaitForSingleObject,
- * and TerminateThread to provide the functionality required by the qthread interface.
+ * The implementation uses POSIX thread functions like pthread_create, pthread_join,
+ * and pthread_cancel to provide the functionality required by the qthread interface.
  */
 
-#include "QThread.h"
-#include <windows.h>
+#include "qthread.h"
+#include <pthread.h>
+#include <stdlib.h>
 
 enum QThreadReturnCode thread_create(struct QThreadAttributes* thread_request, struct QThreadInfo* thread_info) {
     enum QThreadReturnCode result = RET_QTHREAD_CREATE_FAILED;
-    DWORD thread_id               = 0;
+    int thread_status             = -1;
+    pthread_t* thread_handle      = NULL;
 
     if (NULL == thread_request || NULL == thread_info) {
         result = RET_QTHREAD_NULL_POINTER;
     } else {
-        thread_info->thread_handle = CreateThread(NULL,                                              /* Default security attributes */
-                                                  thread_request->stack_size,                        /* Stack size */
-                                                  (LPTHREAD_START_ROUTINE)thread_request->thread_fn, /* Thread function */
-                                                  thread_request->thread_params,                     /* Thread function parameters */
-                                                  0,                                                 /* Creation flags */
-                                                  &thread_id);                                       /* Thread ID */
-
-        if (NULL == thread_info->thread_handle) {
+        thread_handle = (pthread_t*)calloc(1, sizeof(pthread_t));
+        if (NULL == thread_handle) {
             result = RET_QTHREAD_CREATE_FAILED;
         } else {
-            thread_info->thread_id = (uint64_t)thread_id;
-            result                 = RET_QTHREAD_CREATE_SUCCESS;
+            thread_status = pthread_create(thread_handle, NULL, (void* (*)(void*))thread_request->thread_fn, (void*)thread_request->thread_params);
+            if (0 == thread_status) {
+                thread_info->thread_handle = (void*)thread_handle;
+                result                     = RET_QTHREAD_CREATE_SUCCESS;
+            } else {
+                free(thread_handle);
+                thread_handle = NULL;
+                result        = RET_QTHREAD_CREATE_FAILED;
+            }
         }
     }
 
@@ -71,21 +74,16 @@ enum QThreadReturnCode thread_create(struct QThreadAttributes* thread_request, s
 
 enum QThreadReturnCode thread_destroy(struct QThreadInfo* thread_info) {
     enum QThreadReturnCode result = RET_QTHREAD_DESTROY_FAILED;
-    BOOL close_result             = FALSE;
 
     if (NULL == thread_info) {
         result = RET_QTHREAD_NULL_POINTER;
     } else if (NULL == thread_info->thread_handle) {
         result = RET_QTHREAD_INVALID_HANDLE;
     } else {
-        close_result               = CloseHandle(thread_info->thread_handle);
+        pthread_t* thread_handle = (pthread_t*)(thread_info->thread_handle);
+        free(thread_handle);
         thread_info->thread_handle = NULL;
-
-        if (TRUE == close_result) {
-            result = RET_QTHREAD_DESTROY_SUCCESS;
-        } else {
-            result = RET_QTHREAD_DESTROY_FAILED;
-        }
+        result                     = RET_QTHREAD_DESTROY_SUCCESS;
     }
 
     return result;
@@ -93,16 +91,16 @@ enum QThreadReturnCode thread_destroy(struct QThreadInfo* thread_info) {
 
 enum QThreadReturnCode thread_join(struct QThreadInfo* thread_info) {
     enum QThreadReturnCode result = RET_QTHREAD_JOIN_FAILED;
-    DWORD wait_result             = 0;
+    int thread_status             = -1;
 
     if (NULL == thread_info) {
         result = RET_QTHREAD_NULL_POINTER;
     } else if (NULL == thread_info->thread_handle) {
         result = RET_QTHREAD_INVALID_HANDLE;
     } else {
-        wait_result = WaitForSingleObject(thread_info->thread_handle, INFINITE);
-
-        if (WAIT_OBJECT_0 == wait_result) {
+        pthread_t* thread_handle = (pthread_t*)(thread_info->thread_handle);
+        thread_status            = pthread_join(*thread_handle, NULL);
+        if (0 == thread_status) {
             result = RET_QTHREAD_JOIN_SUCCESS;
         } else {
             result = RET_QTHREAD_JOIN_FAILED;
@@ -114,20 +112,15 @@ enum QThreadReturnCode thread_join(struct QThreadInfo* thread_info) {
 
 enum QThreadReturnCode thread_current_thread_id(struct QThreadInfo* thread_info) {
     enum QThreadReturnCode result = RET_QTHREAD_NULL_POINTER;
-    HANDLE thread_self            = NULL;
+    pthread_t thread_self;
 
     if (NULL == thread_info) {
         result = RET_QTHREAD_NULL_POINTER;
     } else {
-        thread_self = GetCurrentThread();
-
-        if (NULL == thread_self) {
-            result = RET_QTHREAD_CURRENT_THREAD_FAILED;
-        } else {
-            thread_info->thread_handle = (void*)thread_self;
-            thread_info->thread_id     = (uint64_t)GetThreadId(thread_self);
-            result                     = RET_QTHREAD_CURRENT_THREAD_SUCCESS;
-        }
+        thread_self                = pthread_self();
+        thread_info->thread_handle = (void*)&thread_self;
+        thread_info->thread_id     = (uint64_t)thread_self;
+        result                     = RET_QTHREAD_CURRENT_THREAD_SUCCESS;
     }
 
     return result;
@@ -135,30 +128,19 @@ enum QThreadReturnCode thread_current_thread_id(struct QThreadInfo* thread_info)
 
 enum QThreadReturnCode thread_terminate(struct QThreadInfo* thread_info) {
     enum QThreadReturnCode result = RET_QTHREAD_TERMINATE_FAILED;
-    DWORD exit_code               = 0;
-    DWORD error_code              = 0;
-    BOOL terminate_result         = FALSE;
-    BOOL get_exit_code_result     = FALSE;
+    int cancel_status             = -1;
 
     if (NULL == thread_info) {
         result = RET_QTHREAD_NULL_POINTER;
     } else if (NULL == thread_info->thread_handle) {
         result = RET_QTHREAD_INVALID_HANDLE;
     } else {
-        terminate_result = TerminateThread(thread_info->thread_handle, 0);
-
-        if (FALSE == terminate_result) {
-            error_code = GetLastError();
-            result     = RET_QTHREAD_TERMINATE_FAILED;
+        pthread_t* thread_handle = (pthread_t*)(thread_info->thread_handle);
+        cancel_status            = pthread_cancel(*thread_handle);
+        if (0 == cancel_status) {
+            result = RET_QTHREAD_TERMINATE_SUCCESS;
         } else {
-            get_exit_code_result = GetExitCodeThread(thread_info->thread_handle, &exit_code);
-
-            if (FALSE == get_exit_code_result) {
-                error_code = GetLastError();
-                result     = RET_QTHREAD_TERMINATE_FAILED;
-            } else {
-                result = RET_QTHREAD_TERMINATE_SUCCESS;
-            }
+            result = RET_QTHREAD_TERMINATE_FAILED;
         }
     }
 

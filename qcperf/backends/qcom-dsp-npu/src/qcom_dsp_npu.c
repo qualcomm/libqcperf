@@ -46,7 +46,7 @@
 #include "qcom_dsp_npu.h"
 #include "qcperf_backend_interface.h"
 #include "qcom_dsp.h"
-#include "QThread.h"
+#include "qthread.h"
 #include "qtime.h"
 
 static QcPerfMessageCallback g_message_callback = NULL;

@@ -42,7 +42,7 @@
  * to provide the functionality required by the qcv interface.
  */
 
-#include "QCv.h"
+#include "qcv.h"
 #include <Windows.h>
 
 enum QCvReturnCode cv_create(const struct CvAttributes* cv_request, struct CvInfo* cv_info) {

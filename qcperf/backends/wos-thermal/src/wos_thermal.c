@@ -52,7 +52,7 @@
 #include "wos_thermal_logger.h"
 #include "qcperf_backend_interface.h"
 #include "qcperf_backend_enum.h"
-#include "QThread.h"
+#include "qthread.h"
 #include "qtime.h"
 
 #define METRIC_PER_ZONE 2

@@ -42,7 +42,7 @@
  * error handling and validation to ensure robust operation.
  */
 
-#include "QList.h"
+#include "qlist.h"
 
 enum QListReturnCode list_create(struct List** pp_list, const char mutex_name[]) {
     enum QListReturnCode return_code = RETURN_CODE_LIST_SUCCESS;

@@ -42,7 +42,7 @@
  * provide the functionality required by the qmutex interface.
  */
 
-#include "QMutex.h"
+#include "qmutex.h"
 #include <pthread.h>
 
 enum QMutexReturnCode mutex_create(const struct MutexAttributes* mutex_request, struct MutexInfo* mutex_info) {

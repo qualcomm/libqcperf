@@ -43,7 +43,7 @@
  * functionality required by the qcv interface.
  */
 
-#include "QCv.h"
+#include "qcv.h"
 #include "qtime.h"
 #include <pthread.h>
 

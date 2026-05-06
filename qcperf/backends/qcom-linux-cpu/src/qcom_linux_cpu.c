@@ -49,7 +49,7 @@
 #include "qcom_linux_cpu_utils.h"
 #include "qcperf_backend_enum.h"
 #include "qcperf_backend_interface.h"
-#include "QThread.h"
+#include "qthread.h"
 #include "qtime.h"
 
 /** Maximum length for log messages */

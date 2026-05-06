@@ -93,11 +93,11 @@
 extern "C" {
 #endif
 
-#include "QThread.h"
-#include "QMutex.h"
+#include "qthread.h"
+#include "qmutex.h"
 #include "QSleep.h"
-#include "QCv.h"
-#include "QList.h"
+#include "qcv.h"
+#include "qlist.h"
 
 /**
  * @brief GUID for ACPI thermal provider
