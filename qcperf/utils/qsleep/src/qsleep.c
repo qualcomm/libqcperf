@@ -42,7 +42,7 @@
  * usleep() for millisecond-level precision.
  */
 
-#include "QSleep.h"
+#include "qsleep.h"
 
 #ifdef _WIN32
 #include <windows.h>
