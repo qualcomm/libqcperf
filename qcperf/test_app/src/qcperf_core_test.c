@@ -65,16 +65,6 @@
 #include <unistd.h>
 #endif
 
-#if defined(QCPERF_ENABLED_QCOM_LINUX_NPU)
-// For DSP NPU backend - include remote.h and define function pointers
-#include "remote.h"
-
-// Define function pointers for remote operations that will be used by sysmonquery_stub
-int (*local_remote_handle64_open)(const char* name, remote_handle64* ph) = remote_handle64_open;
-int (*local_remote_handle64_close)(remote_handle64 h) = remote_handle64_close;
-int (*local_remote_handle64_invoke)(remote_handle64 h, uint32_t sc, remote_arg* pra) = remote_handle64_invoke;
-#endif
-
 /**
  * @def RETURN_SUCCESS
  * @brief Return code indicating successful test execution

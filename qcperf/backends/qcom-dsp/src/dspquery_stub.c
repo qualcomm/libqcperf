@@ -461,17 +461,17 @@ static const uint16_t methodStringsArrays[5] = {4,11,9,0,7};
 __QAIC_SLIM_EXPORT const Interface __QAIC_SLIM(sysmonquery_slim) = {5,&(methodArrays[0]),0,0,&(methodStringsArrays [0]),methodStrings,strings};
 #endif //_SYSMONQUERY_SLIM_H
 __QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_skel_handle_invoke)(remote_handle64 _h, uint32_t _sc, remote_arg* _pra) __QAIC_STUB_ATTRIBUTE {
-   return __QAIC_REMOTE(local_remote_handle64_invoke)(_h, _sc, _pra);
+   return __QAIC_REMOTE(remote_handle64_invoke)(_h, _sc, _pra);
 }
 #ifdef __cplusplus
 extern "C" {
 #endif
 extern int remote_register_dma_handle(int, uint32_t);
 __QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_open)(const char* uri, remote_handle64* h) __QAIC_STUB_ATTRIBUTE {
-   return __QAIC_REMOTE(local_remote_handle64_open)(uri, h);
+   return __QAIC_REMOTE(remote_handle64_open)(uri, h);
 }
 __QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_close)(remote_handle64 h) __QAIC_STUB_ATTRIBUTE {
-   return __QAIC_REMOTE(local_remote_handle64_close)(h);
+   return __QAIC_REMOTE(remote_handle64_close)(h);
 }
 static __inline int _stub_method(remote_handle64 _handle, uint32_t _mid, uint32_t _in0[1]) {
    remote_arg _pra[1];
@@ -480,7 +480,7 @@ static __inline int _stub_method(remote_handle64 _handle, uint32_t _mid, uint32_
    _pra[0].buf.pv = (void*)_primIn;
    _pra[0].buf.nLen = sizeof(_primIn);
    _COPY(_primIn, 0, _in0, 0, 4);
-   _TRY(_nErr, __QAIC_REMOTE(local_remote_handle64_invoke)(_handle, REMOTE_SCALARS_MAKEX(0, _mid, 1, 0, 0, 0), _pra));
+   _TRY(_nErr, __QAIC_REMOTE(remote_handle64_invoke)(_handle, REMOTE_SCALARS_MAKEX(0, _mid, 1, 0, 0, 0), _pra));
    _CATCH(_nErr) {}
    return _nErr;
 }
@@ -507,7 +507,7 @@ static __inline int _stub_method_1(remote_handle64 _handle, uint32_t _mid, char*
    _praROut[0].buf.pv = _rout0[0];
    _praROut[0].buf.nLen = (1 * _rout0Len[0]);
    _COPY(_primIn, 4, _in2, 0, 4);
-   _TRY(_nErr, __QAIC_REMOTE(local_remote_handle64_invoke)(_handle, REMOTE_SCALARS_MAKEX(0, _mid, 1, 2, 0, 0), _pra));
+   _TRY(_nErr, __QAIC_REMOTE(remote_handle64_invoke)(_handle, REMOTE_SCALARS_MAKEX(0, _mid, 1, 2, 0, 0), _pra));
    _COPY(_rout1, 0, _primROut, 0, 4);
    _CATCH(_nErr) {}
    return _nErr;

@@ -1,30 +1,22 @@
-add_library(QcPerfQcomDsp STATIC
+add_library(QcPerfQcomDsp SHARED
     src/qcom_dsp.c
     src/dspquery_stub.c
     
 )
 
-add_library(cdsprpc SHARED
-    src/cdsprpc_stub.c
-
+find_path(FASTRPC_INCLUDE_DIR AEEStdDef.h
+    PATHS /usr/include /usr/local/include/fastrpc /usr/include/aarch64-linux-gnu
 )
 
-# libcdsprpc.so is a BSP runtime dependency on the target device.
-# This stub exists only to satisfy the linker at build time; it must not
-# be included in the deliverable package.  Redirect it to a separate
-# directory so it cannot be mistaken for a real output artifact.
-set_target_properties(cdsprpc PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/link-stubs"
+find_library(FASTRPC_LIBRARY NAMES cdsprpc
+    PATHS /usr/lib /usr/local/lib /usr/lib/aarch64-linux-gnu/
 )
 
 target_include_directories(QcPerfQcomDsp PUBLIC
     inc
-)
-
-target_include_directories(cdsprpc PUBLIC
-    inc
+    ${FASTRPC_INCLUDE_DIR}
 )
 
 target_link_libraries(QcPerfQcomDsp PUBLIC 
-    cdsprpc
+    ${FASTRPC_LIBRARY}
 )
