@@ -31,7 +31,6 @@ jobs:
           cmake -S qcperf -B ${{ matrix.build_dir }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DProjectVersion="0.1.0.0"
-          -DBACKENDS="DUMMY;CPU"
 
       - name: Build
         run: cmake --build ${{ matrix.build_dir }} --parallel
