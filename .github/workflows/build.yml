@@ -26,11 +26,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Add Qualcomm apt repository
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/qualcomm-linux/qcom-deb-images/main/debos-recipes/overlays/qsc-deb-releases/etc/apt/keyrings/qsc-deb-releases.asc \
+            | sudo tee /etc/apt/keyrings/qsc-deb-releases.asc > /dev/null
+          sudo tee /etc/apt/sources.list.d/qsc-deb-releases.sources > /dev/null <<'EOF'
+          Types: deb
+          URIs: https://qartifactory-edge.qualcomm.com/artifactory/qsc-deb-releases
+          Suites: trixie-overlay
+          Components: main
+          Signed-By: /etc/apt/keyrings/qsc-deb-releases.asc
+          EOF
+          sudo apt-get update -q
+
+      - name: Install FastRPC development files
+        run: sudo apt-get install -y libfastrpc-dev
+
       - name: Configure
         run: >
           cmake -S qcperf -B ${{ matrix.build_dir }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DProjectVersion="0.1.0.0"
+          -DBACKENDS="DUMMY;CPU;NPU"
 
       - name: Build
         run: cmake --build ${{ matrix.build_dir }} --parallel

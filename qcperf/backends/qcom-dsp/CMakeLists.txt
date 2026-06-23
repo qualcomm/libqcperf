@@ -5,7 +5,7 @@ add_library(QcPerfQcomDsp SHARED
 )
 
 find_path(FASTRPC_INCLUDE_DIR AEEStdDef.h
-    PATHS /usr/include /usr/local/include/fastrpc /usr/include/aarch64-linux-gnu
+    PATHS /usr/include/fastrpc /usr/include /usr/local/include/fastrpc /usr/include/aarch64-linux-gnu
 )
 
 find_library(FASTRPC_LIBRARY NAMES cdsprpc
