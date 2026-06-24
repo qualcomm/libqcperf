@@ -80,6 +80,7 @@ add_subdirectory(core)
 add_subdirectory(backends)
 add_subdirectory(utils)
 add_subdirectory(test_app)
+add_subdirectory(npu_logger)
 
 # ============================================================================
 # Configuration summary

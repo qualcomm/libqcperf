@@ -1,0 +1,31 @@
+[Unit]
+Description=QcPerf NPU Metrics Logger
+Documentation=https://github.com/quic/libqcperf
+# The NPU backend requires libcdsprpc.so; start after the base system is up.
+After=local-fs.target
+
+[Service]
+Type=simple
+
+# Create the log directory before the daemon starts.
+ExecStartPre=/bin/mkdir -p /var/log/qcperf
+
+ExecStart=/usr/bin/QcPerfNpuLogger
+
+# Restart automatically on unexpected exit (e.g. libcdsprpc.so crash).
+Restart=on-failure
+RestartSec=5s
+
+# Route stdout/stderr to the systemd journal (visible via journalctl -u qcperf-npu-logger).
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=qcperf-npu-logger
+
+# Harden the service: restrict filesystem access to what the daemon needs.
+ProtectSystem=strict
+ReadWritePaths=/var/log/qcperf
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
