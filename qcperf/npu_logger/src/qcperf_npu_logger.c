@@ -37,11 +37,10 @@
  *
  * Each write atomically replaces the output file with a fresh key:value snapshot:
  *
- *   timestamp_ns:1234567890123456789
- *   Q6 Utilization:42.500000 %
- *   Q6 Clock:614400.000000 KHz
- *   HVX Utilization:12.300000 %
- *   HMX Utilization:8.700000 %
+ *   Q6 Utilization:42.50
+ *   Q6 Clock:614400.00
+ *   HVX Utilization:12.30
+ *   HMX Utilization:8.70
  *
  * The daemon handles SIGTERM and SIGINT for clean shutdown.
  *
@@ -260,13 +259,12 @@ static void lookup_metric_info(uint8_t capability_id, uint16_t metric_id, const 
  * metric_id) is written; earlier samples within the streaming window are discarded because
  * the file represents a point-in-time snapshot, not a history.
  *
- * Output format (one line per metric, preceded by a timestamp line):
+ * Output format (one line per metric):
  * @code
- *   timestamp_ns:1234567890123456789
- *   Q6 Utilization:42.500000 %
- *   Q6 Clock:614400.000000 KHz
- *   HVX Utilization:12.300000 %
- *   HMX Utilization:8.700000 %
+ *   Q6 Utilization:42.50
+ *   Q6 Clock:614400.00
+ *   HVX Utilization:12.30
+ *   HMX Utilization:8.70
  * @endcode
  *
  * @param[in] data  Pointer to the QcPerfData structure delivered by the backend.
@@ -278,7 +276,6 @@ static enum QcPerfReturnCode data_callback(struct QcPerfData *data) {
     FILE *fp = NULL;
     uint32_t idx = 0;
     const char *metric_name = NULL;
-    uint64_t latest_ts = 0;
 
     if (NULL == data) {
         fprintf(stderr, "[ERROR] data_callback received NULL data\n");
@@ -289,15 +286,6 @@ static enum QcPerfReturnCode data_callback(struct QcPerfData *data) {
             fprintf(stderr, "[ERROR] fopen(%s) failed: %s\n", NPU_LOGGER_TMP_FILE, strerror(errno));
             return_code = QC_PERF_RETURN_CODE_FAILED;
         } else {
-            /* Find the latest timestamp across all samples in this streaming window. */
-            for (idx = 0; idx < data->metric_response_len; idx++) {
-                if (data->metric_response[idx].timestamp > latest_ts) {
-                    latest_ts = data->metric_response[idx].timestamp;
-                }
-            }
-
-            fprintf(fp, "timestamp_ns:%llu\n", (unsigned long long)latest_ts);
-
             /*
              * Write the last sample seen for each metric_id.  Iterating in
              * reverse means the first occurrence we find (from the end) is the
