@@ -7,9 +7,6 @@ After=local-fs.target
 [Service]
 Type=simple
 
-# Create the log directory before the daemon starts.
-ExecStartPre=/bin/mkdir -p /var/log/qcperf
-
 ExecStart=/usr/bin/QcPerfNpuLogger
 
 # Restart automatically on unexpected exit (e.g. libcdsprpc.so crash).
@@ -22,8 +19,10 @@ StandardError=journal
 SyslogIdentifier=qcperf-npu-logger
 
 # Harden the service: restrict filesystem access to what the daemon needs.
+# LogsDirectory creates /var/log/qcperf before namespace setup, which is
+# required for ProtectSystem=strict to work correctly on first install.
 ProtectSystem=strict
-ReadWritePaths=/var/log/qcperf
+LogsDirectory=qcperf
 PrivateTmp=true
 NoNewPrivileges=true
 
