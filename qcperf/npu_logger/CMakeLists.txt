@@ -12,6 +12,7 @@ if(BUILD_NPU_LOGGER AND QCPERF_ENABLED_QCOM_LINUX_NPU)
     set_target_properties(QcPerfNpuLogger PROPERTIES
         OUTPUT_NAME "QcPerfNpuLogger"
         POSITION_INDEPENDENT_CODE OFF
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
 
     target_include_directories(QcPerfNpuLogger
