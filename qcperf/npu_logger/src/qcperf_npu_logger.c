@@ -133,6 +133,7 @@ static enum QcPerfReturnCode copy_backend_info(const struct QcPerfBackendInfo *b
     enum QcPerfReturnCode return_code = QC_PERF_RETURN_CODE_SUCCESS;
     uint8_t cap_idx = 0;
     uint8_t met_idx = 0;
+    uint8_t cleanup = 0;
 
     if (NULL == backend_info) {
         return_code = QC_PERF_RETURN_CODE_INVALID_ARGUMENTS;
@@ -161,7 +162,7 @@ static enum QcPerfReturnCode copy_backend_info(const struct QcPerfBackendInfo *b
                     if (NULL == g_backend_info->capabilities_list[cap_idx].metric_ids_list) {
                         fprintf(stderr, "[ERROR] calloc failed for metric_ids_list (cap %u)\n", (unsigned)cap_idx);
                         /* Free all metric_ids_list arrays allocated so far. */
-                        for (uint8_t cleanup = 0; cleanup < cap_idx; cleanup++) {
+                        for (cleanup = 0; cleanup < cap_idx; cleanup++) {
                             free(g_backend_info->capabilities_list[cleanup].metric_ids_list);
                             g_backend_info->capabilities_list[cleanup].metric_ids_list = NULL;
                         }
@@ -512,7 +513,7 @@ int main(void) {
                                         /* ------------------------------------------------------------------
                                          * Step 8: Run until signalled.
                                          * ------------------------------------------------------------------ */
-                                        while (1 == g_running) {
+                                        while (0 != g_running) {
                                             sleep(1);
                                         }
 
