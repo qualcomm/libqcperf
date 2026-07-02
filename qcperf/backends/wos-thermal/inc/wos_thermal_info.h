@@ -442,13 +442,13 @@ void wos_thermal_capability_init_metrics(struct QcPerfMetricInfo* metrics_data);
 void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metrics_data, uint8_t* metric_count);
 
 /**
- * @brief Get metric index for a thermal zone and metric type
+ * @brief Get metric ID for a thermal zone and metric type
  *
  * @param[in] zone_id ID of the thermal zone
  * @param[in] is_cooling Whether to get the cooling metric (true) or temperature metric (false)
- * @param[out] metric_index Pointer to store the metric index
+ * @param[out] metric_id Pointer to store the metric ID
  * @return WOS_THERMAL_INFO_SUCCESS on success, error code otherwise
  */
-void wos_thermal_get_metric_index(uint8_t zone_id, bool is_cooling, uint16_t* metric_index);
+void wos_thermal_get_metric_id(uint8_t zone_id, bool is_cooling, uint16_t* metric_id);
 
 #endif /* WOS_THERMAL_INFO_H */
