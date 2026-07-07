@@ -49,7 +49,9 @@
 #include "qcperf_common.h"
 #include "thermal_common.h"
 
-// Mapping from zone ID to metric IDs [0] = temperature metric, [1] = cooling metric
+// Mapping from zone ID to metric IDs: index TZ_TEMPERATURE = temperature metric, TZ_PASSIVE_COOLING = cooling metric
+#define TZ_TEMPERATURE 0
+#define TZ_PASSIVE_COOLING 1
 static uint16_t g_zone_id_to_metric_id_map[MAX_THERMAL_ZONE_ID][2] = {0};
 
 /**
@@ -558,7 +560,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -571,7 +573,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -587,7 +589,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -600,7 +602,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -616,7 +618,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -629,7 +631,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -645,7 +647,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -658,7 +660,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -674,7 +676,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -687,7 +689,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -703,7 +705,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -716,7 +718,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -732,7 +734,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -745,7 +747,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -761,7 +763,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -774,7 +776,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -790,7 +792,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -803,7 +805,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -819,7 +821,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -832,7 +834,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -848,7 +850,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -861,7 +863,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -877,7 +879,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -890,7 +892,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -906,7 +908,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -919,7 +921,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -935,7 +937,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -948,7 +950,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -964,7 +966,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -977,7 +979,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -993,7 +995,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1006,7 +1008,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1022,7 +1024,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1035,7 +1037,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1051,7 +1053,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1064,7 +1066,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1080,7 +1082,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1093,7 +1095,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1109,7 +1111,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1122,7 +1124,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1138,7 +1140,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1151,7 +1153,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1167,7 +1169,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][0] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1180,7 +1182,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_id_map[zone_id][1] = metrics_data[metric_index].metric_id;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1216,8 +1218,8 @@ void wos_thermal_get_metric_id(uint8_t zone_id, bool is_cooling, uint16_t* metri
         return;
     }
     if (true == is_cooling) {
-        *metric_id = g_zone_id_to_metric_id_map[zone_id][1];
+        *metric_id = g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING];
     } else {
-        *metric_id = g_zone_id_to_metric_id_map[zone_id][0];
+        *metric_id = g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE];
     }
 }
