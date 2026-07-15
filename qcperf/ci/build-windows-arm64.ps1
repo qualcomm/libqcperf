@@ -43,7 +43,7 @@ Write-Host "==> Initializing submodules"
 git submodule update --init --recursive
 
 Write-Host "==> Configuring ($BuildDir)"
-cmake -B $BuildDir -G "Visual Studio 17 2022" -A ARM64 `
+cmake -S qcperf -B $BuildDir -G "Visual Studio 17 2022" -A ARM64 `
     -DProjectVersion="$ProjectVersion" `
     -DBACKENDS="$Backends" `
     -DBUILD_SHARED="$BuildSharedValue"
