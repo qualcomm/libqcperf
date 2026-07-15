@@ -36,7 +36,7 @@
  * information structures with static definitions for the WOS Thermal backend's
  * temperature and passive cooling monitoring capability.
  *
- * The implementation initializes metric information for 22 thermal zones, with
+ * The implementation initializes metric information for 12 thermal zones, with
  * each zone having two metrics: temperature (in degrees Celsius) and passive
  * cooling (as a percentage). These metrics are used by the WOS Thermal backend
  * to report thermal conditions to applications.
@@ -49,8 +49,10 @@
 #include "qcperf_common.h"
 #include "thermal_common.h"
 
-// Mapping from zone ID to metric indices [0] = temperature metric, [1] = cooling metric
-static uint16_t g_zone_id_to_metric_index_map[MAX_THERMAL_ZONE_ID][2] = {0};
+// Mapping from zone ID to metric IDs: index TZ_TEMPERATURE = temperature metric, TZ_PASSIVE_COOLING = cooling metric
+#define TZ_TEMPERATURE 0
+#define TZ_PASSIVE_COOLING 1
+static uint16_t g_zone_id_to_metric_id_map[MAX_THERMAL_ZONE_ID][2] = {0};
 
 /**
  * @brief Initialize WOS Thermal metrics data
@@ -213,223 +215,6 @@ void wos_thermal_capability_init_metrics(struct QcPerfMetricInfo* metrics_data) 
     snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_NSP_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_NSP_COOLING_UNIT);
     metrics_data[WOS_THERMAL_METRIC_INDEX_NSP_COOLING].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_NSP_COOLING].metric_unit);
 
-    // QCLimitsPolicy CPU coreparking - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_TEMP].metric_unit);
-
-    // QCLimitsPolicy CPU coreparking - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_COREPARKING_COOLING].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS All Clusters - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_name_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_unit_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS All Clusters - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_name_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_unit_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS Cluster0 - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS Cluster0 - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_name_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_unit_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS Cluster1 - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS Cluster1 - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_name_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_unit_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS Cluster2 - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP].metric_unit);
-
-    // QCLimitsPolicy CPU DCVS Cluster2 - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_name_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_unit_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING].metric_unit);
-
-    // QCLimitsPolicy GPU - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_TEMP].metric_unit);
-
-    // QCLimitsPolicy GPU - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_GPU_COOLING].metric_unit);
-
-    // QCLimitsPolicy NSP - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_TEMP].metric_unit);
-
-    // QCLimitsPolicy NSP - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_NSP_COOLING].metric_unit);
-
-    // QCLimitsPolicy Modem BCL - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_TEMP].metric_unit);
-
-    // QCLimitsPolicy Modem BCL - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_BCL_COOLING].metric_unit);
-
-    // QCLimitsPolicy Modem Skin - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_TEMP].metric_unit);
-
-    // QCLimitsPolicy Modem Skin - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s",
-             WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_description_len =
-        strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_MODEM_SKIN_COOLING].metric_unit);
-
-    // QCLimitsPolicy WLAN - Temperature
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_TEMP].metric_unit);
-
-    // QCLimitsPolicy WLAN - Passive Cooling
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_ID;
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_NAME);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_name_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_name);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_DESCRIPTION);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_description_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_description);
-    snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_UNIT);
-    metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_unit_len = strlen(metrics_data[WOS_THERMAL_METRIC_INDEX_QCLIMITSPOLICY_WLAN_COOLING].metric_unit);
-
     // Critical Thermal Zones for All Internal TSENS - Temperature
     metrics_data[WOS_THERMAL_METRIC_INDEX_CRITICAL_THERMAL_ZONES_TEMP].metric_id = WOS_THERMAL_METRIC_CRITICAL_THERMAL_ZONES_TEMP_ID;
     snprintf(metrics_data[WOS_THERMAL_METRIC_INDEX_CRITICAL_THERMAL_ZONES_TEMP].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_CRITICAL_THERMAL_ZONES_TEMP_NAME);
@@ -518,8 +303,8 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
     enum ThermalCommonReturnCode common_ret  = RETURN_CODE_THERMAL_COMMON_SUCCESS;
     uint8_t metric_index                     = 0;
 
-    // Clear the zone ID to metric index mapping
-    memset(g_zone_id_to_metric_index_map, 0xFF, sizeof(g_zone_id_to_metric_index_map));
+    // Clear the zone ID to metric ID mapping
+    memset(g_zone_id_to_metric_id_map, 0xFF, sizeof(g_zone_id_to_metric_id_map));
 
     // Initialize metric count to 0
     if (NULL == metric_count) {
@@ -558,7 +343,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -571,7 +356,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -587,7 +372,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -600,7 +385,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -616,7 +401,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -629,7 +414,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -645,7 +430,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -658,7 +443,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -674,7 +459,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -687,7 +472,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -703,7 +488,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -716,7 +501,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -732,7 +517,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -745,7 +530,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -761,7 +546,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -774,297 +559,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy CPU coreparking
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_COREPARKING_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy CPU DCVS All Clusters
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_ALL_CLUSTERS_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy CPU DCVS Cluster0
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER0_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy CPU DCVS Cluster1
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER1_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy CPU DCVS Cluster2
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_CPU_DCVS_CLUSTER2_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy GPU
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_ZONE_NAME) != NULL && strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_ZONE_NAME) == zone_name) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_GPU_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy NSP
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_NSP_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy Modem BCL
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_BCL_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy Modem Skin
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_MODEM_SKIN_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
-                        metric_index++;
-                        found_match = true;
-                    }
-                    // QCLimitsPolicy WLAN
-                    else if (strstr(zone_name, WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_ZONE_NAME) != NULL) {
-                        // Temperature metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_TEMP_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
-                        metric_index++;
-
-                        // Cooling metric
-                        metrics_data[metric_index].metric_id = WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_ID;
-                        snprintf(metrics_data[metric_index].metric_name, METRIC_NAME_MAX_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_NAME);
-                        metrics_data[metric_index].metric_name_len = strlen(metrics_data[metric_index].metric_name);
-                        snprintf(metrics_data[metric_index].metric_description, MAX_METRIC_DESCRIPTION_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_DESCRIPTION);
-                        metrics_data[metric_index].metric_description_len = strlen(metrics_data[metric_index].metric_description);
-                        snprintf(metrics_data[metric_index].metric_unit, MAX_METRIC_UNIT_LEN, "%s", WOS_THERMAL_METRIC_QCLIMITSPOLICY_WLAN_COOLING_UNIT);
-                        metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
-
-                        // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1080,7 +575,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1093,7 +588,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1109,7 +604,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1122,7 +617,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1138,7 +633,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1151,7 +646,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1167,7 +662,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][0] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE] = metrics_data[metric_index].metric_id;
                         metric_index++;
 
                         // Cooling metric
@@ -1180,7 +675,7 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
                         metrics_data[metric_index].metric_unit_len = strlen(metrics_data[metric_index].metric_unit);
 
                         // Store mapping
-                        g_zone_id_to_metric_index_map[zone_id][1] = metric_index;
+                        g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING] = metrics_data[metric_index].metric_id;
                         metric_index++;
                         found_match = true;
                     }
@@ -1200,24 +695,24 @@ void wos_thermal_capability_init_available_metrics(struct QcPerfMetricInfo* metr
 }
 
 /**
- * @brief Get metric index for a thermal zone and metric type
+ * @brief Get metric ID for a thermal zone and metric type
  *
  * @param[in] zone_id ID of the thermal zone
  * @param[in] is_cooling Whether to get the cooling metric (true) or temperature metric (false)
- * @param[out] metric_index Pointer to store the metric index
+ * @param[out] metric_id Pointer to store the metric ID
  */
-void wos_thermal_get_metric_index(uint8_t zone_id, bool is_cooling, uint16_t* metric_index) {
-    if (metric_index == NULL) {
+void wos_thermal_get_metric_id(uint8_t zone_id, bool is_cooling, uint16_t* metric_id) {
+    if (metric_id == NULL) {
         return;
     }
 
     if (zone_id >= MAX_THERMAL_ZONE_ID) {
-        *metric_index = 0xFFFF;  // Invalid zone ID
+        *metric_id = 0xFFFF;  // Invalid zone ID
         return;
     }
     if (true == is_cooling) {
-        *metric_index = g_zone_id_to_metric_index_map[zone_id][1];
+        *metric_id = g_zone_id_to_metric_id_map[zone_id][TZ_PASSIVE_COOLING];
     } else {
-        *metric_index = g_zone_id_to_metric_index_map[zone_id][0];
+        *metric_id = g_zone_id_to_metric_id_map[zone_id][TZ_TEMPERATURE];
     }
 }

@@ -153,9 +153,9 @@ static void* thermal_data_collection_thread(void* param) {
                             for (uint8_t i = 0; i < thermal_data->zone_count && metric_index < metric_count - 1; i++) {
                                 uint8_t zone_id = thermal_data->zones[i].zone_id;
 
-                                // Get metric indices for temperature and cooling
-                                wos_thermal_get_metric_index(zone_id, false, &temp_metric_id);
-                                wos_thermal_get_metric_index(zone_id, true, &cooling_metric_id);
+                                // Get metric IDs for temperature and cooling
+                                wos_thermal_get_metric_id(zone_id, false, &temp_metric_id);
+                                wos_thermal_get_metric_id(zone_id, true, &cooling_metric_id);
 
                                 // Skip zones that don't have metrics defined
                                 if (temp_metric_id == 0xFFFF || cooling_metric_id == 0xFFFF) {
