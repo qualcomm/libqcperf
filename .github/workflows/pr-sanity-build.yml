@@ -1,0 +1,75 @@
+name: PR Sanity Build
+
+# Mandatory build gate for every PR targeting main.
+# Compiles both supported platforms (Linux ARM64 cross-compile and Windows
+# ARM64) using the exact command sequence documented in README.md, in both
+# static and shared library variants, across every platform-supported
+# backend. A broken build here must block merge — mark both jobs below as
+# required status checks in branch protection (done manually, not by CI).
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AARCH64_TOOLCHAIN_VERSION: "15.2.rel1"
+
+jobs:
+  linux-aarch64-sanity-build:
+    name: Linux ARM64 sanity build (shared=${{ matrix.build_shared }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_shared: ["OFF", "ON"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache ARM GNU Toolchain
+        id: toolchain-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/arm-gnu-toolchain
+          key: arm-gnu-toolchain-${{ env.AARCH64_TOOLCHAIN_VERSION }}-x86_64-aarch64-none-linux-gnu
+
+      - name: Download ARM GNU Toolchain
+        if: steps.toolchain-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          URL="https://developer.arm.com/-/media/Files/downloads/gnu/${AARCH64_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${AARCH64_TOOLCHAIN_VERSION}-x86_64-aarch64-none-linux-gnu.tar.xz"
+          mkdir -p "${{ runner.temp }}/arm-gnu-toolchain"
+          curl -fL "${URL}" -o /tmp/toolchain.tar.xz
+          tar -xJf /tmp/toolchain.tar.xz -C "${{ runner.temp }}/arm-gnu-toolchain" --strip-components=1
+
+      - name: Build (linux-aarch64, Release, shared=${{ matrix.build_shared }})
+        env:
+          AARCH64_TOOLCHAIN_PATH: ${{ runner.temp }}/arm-gnu-toolchain
+        run: |
+          chmod +x qcperf/ci/build-linux-aarch64.sh
+          qcperf/ci/build-linux-aarch64.sh Release "${{ matrix.build_shared }}"
+
+  windows-arm64-sanity-build:
+    name: Windows ARM64 sanity build (shared=${{ matrix.build_shared }})
+    # NOTE: windows-11-arm is a GitHub-hosted ARM64 Windows runner. If it is
+    # not available on this org's GitHub plan, switch to windows-latest
+    # (x86_64 host cross-compiling to ARM64 via the VS ARM64 toolset still
+    # works with the same script/commands).
+    runs-on: windows-11-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        build_shared: [false, true]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build (windows-arm64, Release, shared=${{ matrix.build_shared }})
+        shell: pwsh
+        run: |
+          if ("${{ matrix.build_shared }}" -eq "true") {
+            qcperf/ci/build-windows-arm64.ps1 -Config Release -BuildShared
+          } else {
+            qcperf/ci/build-windows-arm64.ps1 -Config Release
+          }
