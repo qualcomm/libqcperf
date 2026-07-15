@@ -48,7 +48,10 @@ jobs:
           AARCH64_TOOLCHAIN_PATH: ${{ runner.temp }}/arm-gnu-toolchain
         run: |
           chmod +x qcperf/ci/build-linux-aarch64.sh
-          qcperf/ci/build-linux-aarch64.sh Release "${{ matrix.build_shared }}"
+          # NPU excluded for now: it requires the proprietary Qualcomm FastRPC SDK
+          # (find_path/find_library in qcom-dsp/CMakeLists.txt), not available on
+          # hosted runners. Re-enable once that dependency is provisioned in CI.
+          qcperf/ci/build-linux-aarch64.sh Release "${{ matrix.build_shared }}" "CPU;DUMMY"
 
   windows-arm64-sanity-build:
     name: Windows ARM64 sanity build (shared=${{ matrix.build_shared }})
