@@ -68,6 +68,7 @@ enum QcPerfBackendId {
     QC_PERF_BACKEND_DSP_NPU,        /**< Qualcomm DSP NPU monitoring backend (Linux ARM64) */
     QC_PERF_BACKEND_POWER,          /**< Power monitoring backend (Windows ARM64) */
     QC_PERF_BACKEND_THERMAL,        /**< Thermal monitoring backend (Windows ARM64) */
+    QC_PERF_BACKEND_WOS_CPU,        /**< CPU monitoring backend (Windows ARM64) */
     QC_PERF_BACKEND_MAX,            /**< Sentinel value — total number of backend slots */
 };
 

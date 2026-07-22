@@ -605,6 +605,11 @@ int main(int argc, char** argv) {
                 backend_name = "thermal";
                 break;
 #endif
+#if defined(QCPERF_ENABLED_WOS_CPU)
+            case QC_PERF_BACKEND_WOS_CPU:
+                backend_name = "wos-cpu";
+                break;
+#endif
             default:
                 backend_name = "unknown";
                 break;

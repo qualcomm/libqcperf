@@ -143,7 +143,7 @@ endif()
 
 if(QCPERF_PLATFORM_WINDOWS_ARM64)
     set(_OS_PREFIX "WOS")
-    foreach(_BACKEND THERMAL POWER)
+    foreach(_BACKEND THERMAL POWER CPU)
         list(APPEND QCPERF_PLATFORM_SUPPORTED_BACKENDS ${_BACKEND})
         set(QCPERF_BACKEND_OS_PREFIX_${_BACKEND} ${_OS_PREFIX})
     endforeach()
@@ -297,25 +297,21 @@ if(MSVC)
     )
 
     # Debug-specific flags
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_compile_options(
-            /Zi # Generate debug info
-            /Od # Disable optimization
-            /RTC1 # Runtime error checks
-        )
-    endif()
+    add_compile_options(
+        $<$<CONFIG:Debug>:/Zi>   # Generate debug info
+        $<$<CONFIG:Debug>:/Od>   # Disable optimization
+        $<$<CONFIG:Debug>:/RTC1> # Runtime error checks
+    )
 
     # Release-specific flags
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options(
-            /O2 # Optimize for speed
-            /Oi # Enable intrinsic functions
-            /GL # Whole program optimization
-        )
-        add_link_options(
-            /LTCG # Link-time code generation
-        )
-    endif()
+    add_compile_options(
+        $<$<CONFIG:Release>:/O2> # Optimize for speed
+        $<$<CONFIG:Release>:/Oi> # Enable intrinsic functions
+        $<$<CONFIG:Release>:/GL> # Whole program optimization
+    )
+    add_link_options(
+        $<$<CONFIG:Release>:/LTCG> # Link-time code generation
+    )
 
 else()
     # GCC/Clang compiler flags

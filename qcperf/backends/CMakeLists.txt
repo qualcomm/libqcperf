@@ -52,6 +52,10 @@ if(QCPERF_ENABLED_WOS_POWER)
     add_subdirectory(wos-power-backend)
 endif()
 
+if(QCPERF_ENABLED_WOS_CPU)
+    add_subdirectory(wos-cpu)
+endif()
+
 # ============================================================================
 # Backend Interface
 # ============================================================================

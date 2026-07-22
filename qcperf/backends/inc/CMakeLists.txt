@@ -80,3 +80,12 @@ if(QCPERF_ENABLED_WOS_POWER)
         QcPerfWosPowerBackend
     )
 endif()
+
+if(QCPERF_ENABLED_WOS_CPU)
+    target_include_directories(QcPerfBackends INTERFACE
+        ${CMAKE_SOURCE_DIR}/backends/wos-cpu/inc
+    )
+    target_link_libraries(QcPerfBackends INTERFACE
+        QcPerfWosCpuBackend
+    )
+endif()
