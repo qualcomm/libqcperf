@@ -62,6 +62,15 @@ if(QCPERF_ENABLED_QCOM_LINUX_NPU)
     )
 endif()
 
+if(QCPERF_ENABLED_QCOM_LINUX_THERMAL)
+    target_include_directories(QcPerfBackends INTERFACE
+        ${CMAKE_SOURCE_DIR}/backends/linux-thermal/inc
+    )
+    target_link_libraries(QcPerfBackends INTERFACE
+        QcPerfLinuxThermalBackend
+    )
+endif()
+
 # Windows ARM64 backends
 if(QCPERF_ENABLED_WOS_THERMAL)
     target_include_directories(QcPerfBackends INTERFACE
