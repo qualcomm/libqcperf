@@ -3,3 +3,6 @@
 	url = https://github.com/microsoft/krabsetw.git
 	update = checkout
 	branch = eaa17e2f9204496af81e3ca207450fdc7c6956f7
+[submodule "qcperf/third-party/fastrpc"]
+	path = qcperf/third-party/fastrpc
+	url = https://github.com/qualcomm/fastrpc.git

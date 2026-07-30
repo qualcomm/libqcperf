@@ -84,16 +84,18 @@ endif()
 set(QCPERF_LINUX_LIBS "")
 
 # Add Linux-specific libraries if needed
-if(QCPERF_OS_LINUX)
+if(QCPERF_OS_LINUX AND NOT QCPERF_OS_ANDROID)
     list(APPEND QCPERF_LINUX_LIBS
-        # Add Linux-specific libraries here
-        # Example: pthread, dl, rt
         pthread
         dl
     )
 endif()
 
 set(_OS_M "m")
-set(_OS_THREAD "pthread")
+if(QCPERF_OS_ANDROID)
+    set(_OS_THREAD "")
+else()
+    set(_OS_THREAD "pthread")
+endif()
 
 message(STATUS "Linux platform configuration loaded")

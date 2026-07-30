@@ -203,7 +203,10 @@ enum QcPerfReturnCode qcperf_disconnect_backend(enum QcPerfBackendId backend_id)
         return_code = QC_PERF_RETURN_CODE_BACKEND_NOT_CONNECTED;
     } else {
         g_backends_connected[backend_id] = false;
-        return_code                      = qcperf_reset_backend_private(backend_id);
+        if (NULL != g_qcperf_backend_info[backend_id].qcperf_backend_deinit) {
+            g_qcperf_backend_info[backend_id].qcperf_backend_deinit();
+        }
+        return_code = qcperf_reset_backend_private(backend_id);
     }
     return return_code;
 }
@@ -217,10 +220,6 @@ enum QcPerfReturnCode qcperf_deinit(void) {
         for (enum QcPerfBackendId backend_id = 0; backend_id < QC_PERF_BACKEND_MAX; backend_id++) {
             if (true == g_backends_connected[backend_id]) {
                 return_code = qcperf_disconnect_backend(backend_id);
-                if (QC_PERF_RETURN_CODE_SUCCESS == return_code) {
-                    qcperf_reset_backend_private(backend_id);
-                    g_backends_connected[backend_id] = false;
-                }
             }
         }
         free(g_qcperf_backend_info);

@@ -101,7 +101,15 @@ static enum QcPerfReturnCode dsp_npu_init(void) {
     // Initialize DSP library
     enum DspReturnCode dsp_ret = qcom_dsp_init(DSP_NPU0);
     if (dsp_ret != RETURN_CODE_DSP_LIB_SUCCESS) {
-        SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Failed to initialize DSP library: error code %d", dsp_ret);
+        if(dsp_ret == RETURN_CODE_DSP_REMOTE_SESSION_CONTROL_FAILED) {
+            SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Remote session control failed for DSP NPU: error code %d", dsp_ret);
+        } else if(dsp_ret == RETURN_CODE_DSP_SYSMON_QUERY_OPEN_FAILED) {
+            SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Failed to open sysmon query for DSP NPU: error code %d", dsp_ret);
+        } else if(dsp_ret == RETURN_CODE_DSP_SYSMON_QUERY_INIT_FAILED) {
+            SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Failed to initialize sysmon query for DSP NPU: error code %d", dsp_ret);
+        } else {
+            SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Failed to initialize DSP library : error code %d", dsp_ret);
+        }
         ret = QC_PERF_RETURN_CODE_FAILED;
     } else {
         g_is_dsp_initialized = true;
