@@ -68,7 +68,6 @@ cmake -S qcperf -B "${BUILD_DIR}" \
     -DTARGET_ARCH=linux-aarch64 \
     -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
     -DProjectVersion="${PROJECT_VERSION}" \
-    # -DBACKENDS="${BACKENDS}" \
     -DBUILD_SHARED="${BUILD_SHARED}"
 
 echo "==> Building (${BUILD_DIR})"

@@ -41,15 +41,7 @@ jobs:
         run: |
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
-      - name: Cache ARM GNU Toolchain
-        id: toolchain-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ${{ runner.temp }}/arm-gnu-toolchain
-          key: arm-gnu-toolchain-${{ env.AARCH64_TOOLCHAIN_VERSION }}-x86_64-aarch64-none-linux-gnu
-
       - name: Download ARM GNU Toolchain
-        if: steps.toolchain-cache.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
           URL="https://developer.arm.com/-/media/Files/downloads/gnu/${AARCH64_TOOLCHAIN_VERSION}/binrel/arm-gnu-toolchain-${AARCH64_TOOLCHAIN_VERSION}-x86_64-aarch64-none-linux-gnu.tar.xz"
@@ -67,17 +59,20 @@ jobs:
 
       - name: Package artifact
         id: package
+        env:
+          BUILD_SHARED: ${{ matrix.build_shared }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
           VARIANT="static"
           LIB_NAME="libqcperfCore.a"
           BUILD_DIR="build-linux-aarch64-release"
-          if [ "${{ matrix.build_shared }}" = "ON" ]; then
+          if [ "${BUILD_SHARED}" = "ON" ]; then
             VARIANT="shared"
             LIB_NAME="libqcperfCore.so"
             BUILD_DIR="build-linux-aarch64-release-shared"
           fi
-          NAME="qcperfCore-${{ steps.version.outputs.version }}-linux-aarch64-${VARIANT}"
+          NAME="qcperfCore-${VERSION}-linux-aarch64-${VARIANT}"
           STAGE_DIR="staging/${NAME}"
           mkdir -p "${STAGE_DIR}/lib" "${STAGE_DIR}/include"
           cp "${BUILD_DIR}/${LIB_NAME}" "${STAGE_DIR}/lib/"
@@ -133,16 +128,19 @@ jobs:
       - name: Package artifact
         id: package
         shell: pwsh
+        env:
+          BUILD_SHARED: ${{ matrix.build_shared }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           $variant = "static"
           $libName = "qcperfCore.lib"
           $buildDir = "build-windows-arm64-release"
-          if ("${{ matrix.build_shared }}" -eq "true") {
+          if ($env:BUILD_SHARED -eq "true") {
             $variant = "shared"
             $libName = "qcperfCore.dll"
             $buildDir = "build-windows-arm64-release-shared"
           }
-          $name = "qcperfCore-${{ steps.version.outputs.version }}-windows-arm64-$variant"
+          $name = "qcperfCore-$($env:VERSION)-windows-arm64-$variant"
           $stageDir = "staging/$name"
           New-Item -ItemType Directory -Force -Path "$stageDir/lib" | Out-Null
           New-Item -ItemType Directory -Force -Path "$stageDir/include" | Out-Null
