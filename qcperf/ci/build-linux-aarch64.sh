@@ -49,7 +49,7 @@ set -euo pipefail
 
 BUILD_TYPE="${1:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
 BUILD_SHARED="${2:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
-BACKENDS="${3:-CPU;NPU;DUMMY}"
+# BACKENDS="${3:-CPU;NPU;DUMMY}"
 PROJECT_VERSION="${PROJECT_VERSION:-0.1.0.0}"
 
 if [[ -z "${AARCH64_TOOLCHAIN_PATH:-}" ]]; then
@@ -68,7 +68,7 @@ cmake -S qcperf -B "${BUILD_DIR}" \
     -DTARGET_ARCH=linux-aarch64 \
     -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
     -DProjectVersion="${PROJECT_VERSION}" \
-    -DBACKENDS="${BACKENDS}" \
+    # -DBACKENDS="${BACKENDS}" \
     -DBUILD_SHARED="${BUILD_SHARED}"
 
 echo "==> Building (${BUILD_DIR})"
