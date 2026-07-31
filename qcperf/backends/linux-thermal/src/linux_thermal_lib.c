@@ -38,12 +38,20 @@
  * classification, and sampling logic is to be filled in.
  */
 
+/* Enable the default glibc feature set (POSIX + BSD) so declarations such as
+ * fileno() and pread() are visible even when compiled with a strict -std=c11.
+ * Must precede any system header include. */
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
+#endif
+
 #include <dirent.h>
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "linux_thermal_lib.h"
 #include "linux_thermal_info.h"
@@ -89,20 +97,27 @@ struct LinuxThermalPrefix {
     uint8_t index;      /**< Domain index within the metrics struct */
 };
 
-/* Temperature-zone type prefixes -> temperature domain index (len precomputed) */
+/* Temperature-zone type prefixes -> temperature domain index (len precomputed).
+ * Order matters: linux_thermal_classify() takes the first prefix that matches,
+ * so more-specific prefixes must precede shorter ones they could collide with.
+ * In particular "sdram" (SDRAM memory temp -> DDR) must come before "sdr"
+ * (RF/SDR radio, e.g. sdr0/sdr0_pa), otherwise "sdr" would swallow "sdram*". */
 static const struct LinuxThermalPrefix g_temp_prefix[] = {
     {"cpu", 3, 0},      {"gpu", 3, 1},  {"nsp", 3, 2},      {"ddr", 3, 3},
+    {"sdram", 5, 3},  /* SDRAM memory temperature -> DDR domain (before "sdr") */
     {"mdmss", 5, 4},    {"qmx", 3, 5},  {"video", 5, 6},    {"camera", 6, 7},
     {"wireless", 8, 8}, {"usb", 3, 9},  {"sdr", 3, 10},     {"mmw", 3, 11},
     {"pm", 2, 12},      {"sys", 3, 13}, {"battery", 7, 14}, {"socd", 4, 15},
     {"vbat", 4, 14},  /* battery voltage node -> BATTERY domain (value is mV, not milli-C) */
 };
 
-/* Cooling-device type prefixes -> cooling domain index (len precomputed) */
+/* Cooling-device type prefixes -> cooling domain index (len precomputed).
+ * CPU cooling aggregates frequency capping (cpufreq-cpu*), core pause
+ * (pause-cpu*) and idle injection (idle-cpu*) - all reduce CPU heat. */
 static const struct LinuxThermalPrefix g_cool_prefix[] = {
-    {"cpu", 3, 0},   {"pause-cpu", 9, 0}, {"ddr", 3, 1},  {"gpu", 3, 2},  {"kgsl", 4, 2},
-    {"cdsp", 4, 3},  {"display", 7, 4},   {"panel", 5, 4}, {"ufs", 3, 5}, {"battery", 7, 6},
-    {"modem", 5, 7}, {"pa_", 3, 8},       {"mmw", 3, 9},   {"dsds", 4, 10}, {"thermal-pause", 13, 11},
+    {"cpu", 3, 0},   {"pause-cpu", 9, 0}, {"idle-cpu", 8, 0}, {"ddr", 3, 1},  {"gpu", 3, 2},  {"kgsl", 4, 2},
+    {"cdsp", 4, 3},  {"display", 7, 4},   {"panel", 5, 4},    {"ufs", 3, 5},  {"battery", 7, 6},
+    {"modem", 5, 7}, {"pa_", 3, 8},       {"mmw", 3, 9},      {"dsds", 4, 10}, {"thermal-pause", 13, 11},
 };
 
 /**
@@ -189,9 +204,13 @@ static bool linux_thermal_read_value(const char* path, uint32_t* out_value) {
 /**
  * @brief Read an integer value from an already-open sysfs node handle
  *
- * Rewinds the stream to the start (discarding any buffered content so the kernel
- * regenerates a fresh value) and re-parses it. Used on the per-sample refresh
- * path so value nodes do not need to be re-opened every sample.
+ * Reads from offset 0 with a raw pread() so the kernel regenerates a fresh
+ * sysfs value on every sample. A buffered stdio path (fseek()+fscanf()) is not
+ * reliable here: sysfs nodes are small enough to be fully captured by the first
+ * read into glibc's stream buffer, and a subsequent fseek() to offset 0 lands
+ * inside that buffer, so glibc serves the stale buffered bytes without issuing a
+ * new read() syscall - freezing the value. pread() always issues a read at
+ * offset 0, forcing the sysfs show() handler to run again.
  *
  * @param[in]  fp        Open sysfs value-node handle (may be NULL)
  * @param[out] out_value Populated with the parsed value (as uint32_t)
@@ -201,9 +220,17 @@ static bool linux_thermal_read_value(const char* path, uint32_t* out_value) {
 static bool linux_thermal_read_value_fp(FILE* fp, uint32_t* out_value) {
     bool ok = false;
 
-    if (NULL != fp && 0 == fseek(fp, 0, SEEK_SET)) {
-        if (1 == fscanf(fp, "%" SCNu32, out_value)) {
-            ok = true;
+    if (NULL != fp && NULL != out_value) {
+        int fd = fileno(fp);
+        if (fd >= 0) {
+            char buf[32]  = {0};
+            ssize_t bytes = pread(fd, buf, sizeof(buf) - 1U, 0);
+            if (bytes > 0) {
+                buf[bytes] = '\0';
+                if (1 == sscanf(buf, "%" SCNu32, out_value)) {
+                    ok = true;
+                }
+            }
         }
     }
 

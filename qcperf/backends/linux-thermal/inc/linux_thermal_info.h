@@ -96,11 +96,11 @@
  * Streaming / sampling rates (milliseconds)
  * ============================================================================ */
 
-#define LINUX_THERMAL_STREAMING_RATES_LEN 3
-#define LINUX_THERMAL_STREAMING_RATES 200, 500, 1000
+#define LINUX_THERMAL_STREAMING_RATES_LEN 4
+#define LINUX_THERMAL_STREAMING_RATES 200, 500, 1000, 2000
 
-#define LINUX_THERMAL_SAMPLING_RATES_LEN 3
-#define LINUX_THERMAL_SAMPLING_RATES 50, 100, 200
+#define LINUX_THERMAL_SAMPLING_RATES_LEN 5
+#define LINUX_THERMAL_SAMPLING_RATES 50, 100, 200, 500, 1000
 
 /* ============================================================================
  * Metrics
@@ -141,10 +141,10 @@
 #define LINUX_THERMAL_METRIC_NPU_TEMP_UNIT LINUX_THERMAL_TEMP_UNIT
 
 /* DDR memory thermal domain */
-/* Sensors: ddr */
+/* Sensors: ddr, sdram* (SDRAM memory sensors are memory temperatures, not RF/SDR) */
 #define LINUX_THERMAL_METRIC_DDR_TEMP_ID 3
 #define LINUX_THERMAL_METRIC_DDR_TEMP_NAME "DDR Temperature"
-#define LINUX_THERMAL_METRIC_DDR_TEMP_DESCRIPTION "Temperature of the DDR memory thermal domain (ddr)"
+#define LINUX_THERMAL_METRIC_DDR_TEMP_DESCRIPTION "Temperature of the DDR memory thermal domain (ddr, sdram*)"
 #define LINUX_THERMAL_METRIC_DDR_TEMP_UNIT LINUX_THERMAL_TEMP_UNIT
 
 /* Modem thermal domain */
@@ -190,7 +190,7 @@
 #define LINUX_THERMAL_METRIC_USB_TEMP_UNIT LINUX_THERMAL_TEMP_UNIT
 
 /* RF / SDR thermal domain */
-/* Sensors: sdr0, sdr0_pa */
+/* Sensors: sdr0, sdr0_pa (NOT sdram*, which is SDRAM memory -> DDR domain) */
 #define LINUX_THERMAL_METRIC_RF_SDR_TEMP_ID 10
 #define LINUX_THERMAL_METRIC_RF_SDR_TEMP_NAME "RF/SDR Temperature"
 #define LINUX_THERMAL_METRIC_RF_SDR_TEMP_DESCRIPTION "Temperature of the RF/SDR thermal domain (sdr0, sdr0_pa)"
@@ -250,10 +250,10 @@
 #define LINUX_THERMAL_COOLING_UNIT "%"
 
 /* CPU cooling domain */
-/* Cooling devices: cpu-hotplug*, cpufreq*, pause-cpu*, cpu-cluster* */
+/* Cooling devices: cpu-hotplug*, cpufreq*, pause-cpu*, cpu-cluster*, idle-cpu* */
 #define LINUX_THERMAL_METRIC_CPU_COOLING_ID 16
 #define LINUX_THERMAL_METRIC_CPU_COOLING_NAME "CPU Cooling"
-#define LINUX_THERMAL_METRIC_CPU_COOLING_DESCRIPTION "Cooling level of the CPU domain (cpu-hotplug*, cpufreq*, pause-cpu*, cpu-cluster*): frequency reduction, core offline, core pause"
+#define LINUX_THERMAL_METRIC_CPU_COOLING_DESCRIPTION "Cooling level of the CPU domain (cpu-hotplug*, cpufreq*, pause-cpu*, cpu-cluster*, idle-cpu*): frequency reduction, core offline, core pause, idle injection"
 #define LINUX_THERMAL_METRIC_CPU_COOLING_UNIT LINUX_THERMAL_COOLING_UNIT
 
 /* DDR cooling domain */
