@@ -38,8 +38,8 @@
 #
 #   BUILD_TYPE   - Debug | Release
 #   BUILD_SHARED - ON | OFF
-#   BACKENDS     - optional, semicolon-separated (default: "CPU;NPU;DUMMY",
-#                  the platform-supported set for linux-aarch64)
+#   BACKENDS     - optional, semicolon-separated. Omit to let CMake enable all
+#                  backends supported on linux-aarch64 (its default behavior).
 #
 # Env:
 #   AARCH64_TOOLCHAIN_PATH - required, path to ARM GNU Toolchain root
@@ -49,7 +49,7 @@ set -euo pipefail
 
 BUILD_TYPE="${1:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
 BUILD_SHARED="${2:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
-# BACKENDS="${3:-CPU;NPU;DUMMY}"
+BACKENDS="${3:-}"
 PROJECT_VERSION="${PROJECT_VERSION:-0.1.0.0}"
 
 if [[ -z "${AARCH64_TOOLCHAIN_PATH:-}" ]]; then
@@ -63,12 +63,19 @@ if [[ "${BUILD_SHARED}" == "ON" ]]; then
 fi
 BUILD_DIR="build-linux-aarch64-$(echo "${BUILD_TYPE}" | tr '[:upper:]' '[:lower:]')${SHARED_SUFFIX}"
 
-echo "==> Configuring (${BUILD_DIR})"
-cmake -S qcperf -B "${BUILD_DIR}" \
-    -DTARGET_ARCH=linux-aarch64 \
-    -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
-    -DProjectVersion="${PROJECT_VERSION}" \
+CMAKE_ARGS=(
+    -S qcperf -B "${BUILD_DIR}"
+    -DTARGET_ARCH=linux-aarch64
+    -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+    -DProjectVersion="${PROJECT_VERSION}"
     -DBUILD_SHARED="${BUILD_SHARED}"
+)
+if [[ -n "${BACKENDS}" ]]; then
+    CMAKE_ARGS+=(-DBACKENDS="${BACKENDS}")
+fi
+
+echo "==> Configuring (${BUILD_DIR})"
+cmake "${CMAKE_ARGS[@]}"
 
 echo "==> Building (${BUILD_DIR})"
 cmake --build "${BUILD_DIR}"

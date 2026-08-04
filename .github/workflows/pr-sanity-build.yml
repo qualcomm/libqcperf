@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: true
 
       - name: Cache ARM GNU Toolchain
         id: toolchain-cache
@@ -46,12 +48,10 @@ jobs:
       - name: Build (linux-aarch64, Release, shared=${{ matrix.build_shared }})
         env:
           AARCH64_TOOLCHAIN_PATH: ${{ runner.temp }}/arm-gnu-toolchain
+          BUILD_SHARED: ${{ matrix.build_shared }}
         run: |
           chmod +x qcperf/ci/build-linux-aarch64.sh
-          # NPU excluded for now: it requires the proprietary Qualcomm FastRPC SDK
-          # (find_path/find_library in qcom-dsp/CMakeLists.txt), not available on
-          # hosted runners. Re-enable once that dependency is provisioned in CI.
-          qcperf/ci/build-linux-aarch64.sh Release "${{ matrix.build_shared }}"
+          qcperf/ci/build-linux-aarch64.sh Release "${BUILD_SHARED}"
 
   windows-arm64-sanity-build:
     name: Windows ARM64 sanity build (shared=${{ matrix.build_shared }})
@@ -67,6 +67,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: true
 
       - name: Build (windows-arm64, Release, shared=${{ matrix.build_shared }})
         shell: pwsh

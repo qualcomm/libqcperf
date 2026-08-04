@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
+          submodules: true
 
       - name: Resolve version
         id: version
@@ -53,9 +54,10 @@ jobs:
         env:
           AARCH64_TOOLCHAIN_PATH: ${{ runner.temp }}/arm-gnu-toolchain
           PROJECT_VERSION: ${{ steps.version.outputs.version }}
+          BUILD_SHARED: ${{ matrix.build_shared }}
         run: |
           chmod +x qcperf/ci/build-linux-aarch64.sh
-          qcperf/ci/build-linux-aarch64.sh Release "${{ matrix.build_shared }}"
+          qcperf/ci/build-linux-aarch64.sh Release "${BUILD_SHARED}"
 
       - name: Package artifact
         id: package
@@ -104,6 +106,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
+          submodules: true
 
       - name: Resolve version
         id: version
