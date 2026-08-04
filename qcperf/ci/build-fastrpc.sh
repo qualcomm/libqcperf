@@ -62,8 +62,30 @@ if [[ -f "${FASTRPC_DIR}/src/.libs/libcdsprpc.so" ]]; then
     exit 0
 fi
 
-echo "==> Enabling arm64 multiarch and installing fastrpc build dependencies"
+echo "==> Enabling arm64 multiarch (via ports.ubuntu.com) and installing fastrpc build dependencies"
+CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME}")"
 sudo dpkg --add-architecture arm64
+
+# The default archive (archive.ubuntu.com / security.ubuntu.com) only hosts
+# amd64 binaries; arm64 packages live on ports.ubuntu.com. Replace the
+# distro-default sources (which may be the deb822 ubuntu.sources file on
+# newer Ubuntu releases) with an amd64-only main archive plus an arm64-only
+# ports source, mirroring fastrpc's own CI (qualcomm/fastrpc ci/build.sh).
+sudo rm -f /etc/apt/sources.list.d/ubuntu.sources
+sudo tee /etc/apt/sources.list > /dev/null <<EOF
+deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME} main restricted universe multiverse
+deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-updates main restricted universe multiverse
+deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-backports main restricted universe multiverse
+deb [arch=amd64] http://security.ubuntu.com/ubuntu ${CODENAME}-security main restricted universe multiverse
+EOF
+sudo tee /etc/apt/sources.list.d/arm64-ports.list > /dev/null <<EOF
+deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME} main restricted universe multiverse
+deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-updates main restricted universe multiverse
+deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-backports main restricted universe multiverse
+deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-security main restricted universe multiverse
+EOF
+
+sudo apt-get clean
 sudo apt-get update -y
 sudo apt-get install -y --no-install-recommends \
     automake autoconf libtool pkg-config \
