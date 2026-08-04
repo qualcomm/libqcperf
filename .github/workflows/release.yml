@@ -50,6 +50,11 @@ jobs:
           curl -fL "${URL}" -o /tmp/toolchain.tar.xz
           tar -xJf /tmp/toolchain.tar.xz -C "${{ runner.temp }}/arm-gnu-toolchain" --strip-components=1
 
+      - name: Build fastrpc (libcdsprpc, required by NPU backend)
+        run: |
+          chmod +x qcperf/ci/build-fastrpc.sh
+          qcperf/ci/build-fastrpc.sh
+
       - name: Build (linux-aarch64, Release, shared=${{ matrix.build_shared }})
         env:
           AARCH64_TOOLCHAIN_PATH: ${{ runner.temp }}/arm-gnu-toolchain
