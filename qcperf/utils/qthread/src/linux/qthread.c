@@ -135,6 +135,17 @@ enum QThreadReturnCode thread_terminate(struct QThreadInfo* thread_info) {
     } else if (NULL == thread_info->thread_handle) {
         result = RET_QTHREAD_INVALID_HANDLE;
     } else {
+#if defined(__ANDROID__)
+        /* Bionic libc does not implement pthread_cancel(); fall back to a
+         * blocking join so the thread is reaped before this call returns. */
+        pthread_t* thread_handle = (pthread_t*)(thread_info->thread_handle);
+        cancel_status            = pthread_join(*thread_handle, NULL);
+        if (0 == cancel_status) {
+            result = RET_QTHREAD_TERMINATE_SUCCESS;
+        } else {
+            result = RET_QTHREAD_TERMINATE_FAILED;
+        }
+#else
         pthread_t* thread_handle = (pthread_t*)(thread_info->thread_handle);
         cancel_status            = pthread_cancel(*thread_handle);
         if (0 == cancel_status) {
@@ -142,6 +153,7 @@ enum QThreadReturnCode thread_terminate(struct QThreadInfo* thread_info) {
         } else {
             result = RET_QTHREAD_TERMINATE_FAILED;
         }
+#endif
     }
 
     return result;
