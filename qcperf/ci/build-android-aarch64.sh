@@ -34,11 +34,12 @@
 #
 # Usage:
 #   export ANDROID_NDK_PATH=/path/to/android-ndk
-#   qcperf/ci/build-android-aarch64.sh <BUILD_TYPE> [BACKENDS]
+#   qcperf/ci/build-android-aarch64.sh <BUILD_TYPE> <BUILD_SHARED> [BACKENDS]
 #
-#   BUILD_TYPE - Debug | Release
-#   BACKENDS   - optional, semicolon-separated. Omit to let CMake enable all
-#                backends supported on android-aarch64 (its default behavior).
+#   BUILD_TYPE   - Debug | Release
+#   BUILD_SHARED - ON | OFF
+#   BACKENDS     - optional, semicolon-separated. Omit to let CMake enable all
+#                  backends supported on android-aarch64 (its default behavior).
 #
 # Env:
 #   ANDROID_NDK_PATH - required, path to Android NDK root
@@ -47,8 +48,9 @@
 # ============================================================================
 set -euo pipefail
 
-BUILD_TYPE="${1:?Usage: $0 <BUILD_TYPE Debug|Release> [BACKENDS]}"
-BACKENDS="${2:-}"
+BUILD_TYPE="${1:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
+BUILD_SHARED="${2:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
+BACKENDS="${3:-}"
 PROJECT_VERSION="${PROJECT_VERSION:-0.1.0.0}"
 ANDROID_API="${ANDROID_API:-29}"
 
@@ -67,6 +69,9 @@ echo "==> Building fastrpc (libcdsprpc, required by the NPU backend)"
 "${SCRIPT_DIR}/build-fastrpc.sh" "${CC_BIN}" "${AR_BIN}" "${RANLIB_BIN}"
 
 BUILD_DIR="build-android-aarch64-$(echo "${BUILD_TYPE}" | tr '[:upper:]' '[:lower:]')"
+if [[ "${BUILD_SHARED}" == "ON" ]]; then
+    BUILD_DIR="${BUILD_DIR}-shared"
+fi
 
 CMAKE_ARGS=(
     -S qcperf -B "${BUILD_DIR}"
@@ -75,6 +80,7 @@ CMAKE_ARGS=(
     -DANDROID_PLATFORM="android-${ANDROID_API}"
     -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
     -DProjectVersion="${PROJECT_VERSION}"
+    -DBUILD_SHARED="${BUILD_SHARED}"
 )
 if [[ -n "${BACKENDS}" ]]; then
     CMAKE_ARGS+=(-DBACKENDS="${BACKENDS}")

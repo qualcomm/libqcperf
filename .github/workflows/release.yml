@@ -2,11 +2,10 @@ name: Release
 
 # Tag-triggered release build.
 # Builds QcPerfCore for all three supported platforms (Android ARM64, Linux
-# ARM64 cross-compile, and Windows ARM64) — Linux and Windows in both static
-# and shared library variants, Android as static only (per README) — using
-# the same scripts as the PR sanity-build gate. Packages each build's
-# library + public headers and publishes them all to a GitHub Release for
-# the pushed tag.
+# ARM64 cross-compile, and Windows ARM64), each in both static and shared
+# library variants — using the same scripts as the PR sanity-build gate.
+# Packages each build's library + public headers and publishes them all to
+# a GitHub Release for the pushed tag.
 #
 # Trigger: push a tag matching v<build>.<major>.<minor>.<patch>, e.g. v0.1.0.0
 
@@ -25,8 +24,12 @@ env:
 
 jobs:
   build-android-aarch64:
-    name: Build android-aarch64
+    name: Build android-aarch64 (shared=${{ matrix.build_shared }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_shared: ["OFF", "ON"]
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -50,24 +53,34 @@ jobs:
           unzip -q /tmp/ndk.zip -d /tmp/ndk-extracted
           mv /tmp/ndk-extracted/*/* "${{ runner.temp }}/android-ndk"/
 
-      - name: Build (android-aarch64, Release)
+      - name: Build (android-aarch64, Release, shared=${{ matrix.build_shared }})
         env:
           ANDROID_NDK_PATH: ${{ runner.temp }}/android-ndk
           PROJECT_VERSION: ${{ steps.version.outputs.version }}
+          BUILD_SHARED: ${{ matrix.build_shared }}
         run: |
           chmod +x qcperf/ci/build-android-aarch64.sh
-          qcperf/ci/build-android-aarch64.sh Release
+          qcperf/ci/build-android-aarch64.sh Release "${BUILD_SHARED}"
 
       - name: Package artifact
         id: package
         env:
+          BUILD_SHARED: ${{ matrix.build_shared }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          NAME="qcperfCore-${VERSION}-android-aarch64-static"
+          VARIANT="static"
+          LIB_NAME="libqcperfCore.a"
+          BUILD_DIR="build-android-aarch64-release"
+          if [ "${BUILD_SHARED}" = "ON" ]; then
+            VARIANT="shared"
+            LIB_NAME="libqcperfCore.so"
+            BUILD_DIR="build-android-aarch64-release-shared"
+          fi
+          NAME="qcperfCore-${VERSION}-android-aarch64-${VARIANT}"
           STAGE_DIR="staging/${NAME}"
           mkdir -p "${STAGE_DIR}/lib" "${STAGE_DIR}/include"
-          cp "build-android-aarch64-release/libqcperfCore.a" "${STAGE_DIR}/lib/"
+          cp "${BUILD_DIR}/${LIB_NAME}" "${STAGE_DIR}/lib/"
           cp -r qcperf/core/inc/. "${STAGE_DIR}/include/"
           cp -r qcperf/backends/inc/*.h "${STAGE_DIR}/include/" 2>/dev/null || true
           tar -C staging -czf "${NAME}.tar.gz" "${NAME}"

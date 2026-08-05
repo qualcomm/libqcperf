@@ -24,3 +24,12 @@ target_include_directories(QcPerfQcomDsp PUBLIC
 target_link_libraries(QcPerfQcomDsp PUBLIC
     ${FASTRPC_LIBRARY}
 )
+
+if(QCPERF_OS_ANDROID)
+    # libcdsprpc.so (built from the fastrpc submodule) references
+    # __android_log_print but is not itself linked against liblog, so
+    # anything that depends on libcdsprpc.so (static or shared QcPerfCore
+    # builds alike) must supply liblog to satisfy Android's
+    # --no-allow-shlib-undefined linker default.
+    target_link_libraries(QcPerfQcomDsp PUBLIC log)
+endif()

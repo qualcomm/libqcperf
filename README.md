@@ -106,9 +106,12 @@ cmake -S qcperf -B build-android-aarch64-release \
     -DANDROID_PLATFORM=android-29 \
     -DCMAKE_BUILD_TYPE=Release \
     -DProjectVersion="0.1.0.0" \
-    -DBACKENDS="CPU;NPU;DUMMY"
+    -DBACKENDS="CPU;NPU;DUMMY" \
+    -DBUILD_SHARED=OFF
 cmake --build build-android-aarch64-release
 ```
+
+> **Note:** `-DBUILD_SHARED=ON` builds `libqcperfCore.so` instead of the default static `libqcperfCore.a` (see the `-DBUILD_SHARED` flag description in the Linux ARM64 section below).
 
 > **Note:** When running on the device, if `libcdsprpc.so` is not found at runtime, set:
 > ```bash

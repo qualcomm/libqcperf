@@ -3,10 +3,10 @@ name: PR Sanity Build
 # Mandatory build gate for every PR targeting main.
 # Compiles all three supported platforms (Android ARM64, Linux ARM64
 # cross-compile, and Windows ARM64) using the exact command sequence
-# documented in README.md, across every platform-supported backend (Linux
-# ARM64 additionally in both static and shared library variants). A broken
-# build here must block merge — mark all jobs below as required status
-# checks in branch protection (done manually, not by CI).
+# documented in README.md, across every platform-supported backend, each
+# platform in both static and shared library variants. A broken build here
+# must block merge — mark all jobs below as required status checks in
+# branch protection (done manually, not by CI).
 
 on:
   pull_request:
@@ -19,8 +19,12 @@ env:
 
 jobs:
   android-aarch64-sanity-build:
-    name: Android ARM64 sanity build
+    name: Android ARM64 sanity build (shared=${{ matrix.build_shared }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_shared: ["OFF", "ON"]
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -44,12 +48,13 @@ jobs:
           unzip -q /tmp/ndk.zip -d /tmp/ndk-extracted
           mv /tmp/ndk-extracted/*/* "${{ runner.temp }}/android-ndk"/
 
-      - name: Build (android-aarch64, Release)
+      - name: Build (android-aarch64, Release, shared=${{ matrix.build_shared }})
         env:
           ANDROID_NDK_PATH: ${{ runner.temp }}/android-ndk
+          BUILD_SHARED: ${{ matrix.build_shared }}
         run: |
           chmod +x qcperf/ci/build-android-aarch64.sh
-          qcperf/ci/build-android-aarch64.sh Release
+          qcperf/ci/build-android-aarch64.sh Release "${BUILD_SHARED}"
 
   linux-aarch64-sanity-build:
     name: Linux ARM64 sanity build (shared=${{ matrix.build_shared }})
