@@ -26,58 +26,55 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ============================================================================
-# QcPerf - Linux ARM64 (LE) cross-compile build script
+# QcPerf - Android ARM64 cross-compile build script
 # ============================================================================
 # Wraps the exact command sequence documented in README.md > Compilation
-# Instructions > Linux ARM64 > Command Line, parameterized for reuse by the
+# Instructions > Android ARM64 > Command Line, parameterized for reuse by the
 # PR sanity-build workflow and the tag-triggered release workflow.
 #
 # Usage:
-#   export AARCH64_TOOLCHAIN_PATH=/path/to/arm-gnu-toolchain
-#   qcperf/ci/build-linux-aarch64.sh <BUILD_TYPE> <BUILD_SHARED> [BACKENDS]
+#   export ANDROID_NDK_PATH=/path/to/android-ndk
+#   qcperf/ci/build-android-aarch64.sh <BUILD_TYPE> [BACKENDS]
 #
-#   BUILD_TYPE   - Debug | Release
-#   BUILD_SHARED - ON | OFF
-#   BACKENDS     - optional, semicolon-separated. Omit to let CMake enable all
-#                  backends supported on linux-aarch64 (its default behavior).
+#   BUILD_TYPE - Debug | Release
+#   BACKENDS   - optional, semicolon-separated. Omit to let CMake enable all
+#                backends supported on android-aarch64 (its default behavior).
 #
 # Env:
-#   AARCH64_TOOLCHAIN_PATH - required, path to ARM GNU Toolchain root
-#   PROJECT_VERSION        - optional, default "0.1.0.0" (matches CMake default)
+#   ANDROID_NDK_PATH - required, path to Android NDK root
+#   PROJECT_VERSION  - optional, default "0.1.0.0" (matches CMake default)
+#   ANDROID_API      - optional, default 29
 # ============================================================================
 set -euo pipefail
 
-BUILD_TYPE="${1:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
-BUILD_SHARED="${2:?Usage: $0 <BUILD_TYPE Debug|Release> <BUILD_SHARED ON|OFF> [BACKENDS]}"
-BACKENDS="${3:-}"
+BUILD_TYPE="${1:?Usage: $0 <BUILD_TYPE Debug|Release> [BACKENDS]}"
+BACKENDS="${2:-}"
 PROJECT_VERSION="${PROJECT_VERSION:-0.1.0.0}"
+ANDROID_API="${ANDROID_API:-29}"
 
-if [[ -z "${AARCH64_TOOLCHAIN_PATH:-}" ]]; then
-    echo "ERROR: AARCH64_TOOLCHAIN_PATH must be set (path to ARM GNU Toolchain root)." >&2
+if [[ -z "${ANDROID_NDK_PATH:-}" ]]; then
+    echo "ERROR: ANDROID_NDK_PATH must be set (path to Android NDK root)." >&2
     exit 1
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TC_BIN="${AARCH64_TOOLCHAIN_PATH}/bin"
+NDK_TOOLCHAIN="${ANDROID_NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64"
+CC_BIN="${NDK_TOOLCHAIN}/bin/aarch64-linux-android${ANDROID_API}-clang"
+AR_BIN="${NDK_TOOLCHAIN}/bin/llvm-ar"
+RANLIB_BIN="${NDK_TOOLCHAIN}/bin/llvm-ranlib"
 
 echo "==> Building fastrpc (libcdsprpc, required by the NPU backend)"
-"${SCRIPT_DIR}/build-fastrpc.sh" \
-    "${TC_BIN}/aarch64-none-linux-gnu-gcc" \
-    "${TC_BIN}/aarch64-none-linux-gnu-ar" \
-    "${TC_BIN}/aarch64-none-linux-gnu-ranlib"
+"${SCRIPT_DIR}/build-fastrpc.sh" "${CC_BIN}" "${AR_BIN}" "${RANLIB_BIN}"
 
-SHARED_SUFFIX=""
-if [[ "${BUILD_SHARED}" == "ON" ]]; then
-    SHARED_SUFFIX="-shared"
-fi
-BUILD_DIR="build-linux-aarch64-$(echo "${BUILD_TYPE}" | tr '[:upper:]' '[:lower:]')${SHARED_SUFFIX}"
+BUILD_DIR="build-android-aarch64-$(echo "${BUILD_TYPE}" | tr '[:upper:]' '[:lower:]')"
 
 CMAKE_ARGS=(
     -S qcperf -B "${BUILD_DIR}"
-    -DTARGET_ARCH=linux-aarch64
+    -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_PATH}/build/cmake/android.toolchain.cmake"
+    -DANDROID_ABI=arm64-v8a
+    -DANDROID_PLATFORM="android-${ANDROID_API}"
     -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
     -DProjectVersion="${PROJECT_VERSION}"
-    -DBUILD_SHARED="${BUILD_SHARED}"
 )
 if [[ -n "${BACKENDS}" ]]; then
     CMAKE_ARGS+=(-DBACKENDS="${BACKENDS}")

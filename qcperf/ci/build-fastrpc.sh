@@ -26,27 +26,37 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ============================================================================
-# QcPerf - fastrpc (libcdsprpc) cross-build for CI
+# QcPerf - fastrpc (libcdsprpc) build for CI
 # ============================================================================
 # Builds the fastrpc submodule (qcperf/third-party/fastrpc) from source so
-# that libcdsprpc.so exists at third-party/fastrpc/src/.libs, satisfying the
+# that libcdsprpc exists at third-party/fastrpc/src/.libs, satisfying the
 # find_library() lookup in qcperf/backends/qcom-dsp/CMakeLists.txt. Without
 # this, the NPU backend (which links against libcdsprpc) cannot configure on
 # hosted runners, which ship no Qualcomm BSP.
+#
+# Follows the exact recipe documented in README.md > Compilation Instructions
+# > Linux ARM64 / Android ARM64 — build fastrpc with the same cross-compiler
+# already in use for the main QcPerfCore build, via
+# ./configure --host=aarch64-linux-android, which causes fastrpc's configure
+# to skip the (non-Android) libyaml/libbsd checks — no extra apt packages
+# needed.
 #
 # This only needs to produce a compile-time link target; the real
 # libcdsprpc.so used at runtime on-device comes from the Qualcomm BSP and is
 # unrelated to this build.
 #
-# Requires (installed by this script via apt, needs sudo):
-#   autotools-dev automake autoconf libtool pkg-config
-#   gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
-#   libyaml-dev libyaml-0-2:arm64 libyaml-dev:arm64 libbsd-dev:arm64
-#
 # Usage:
-#   qcperf/ci/build-fastrpc.sh
+#   qcperf/ci/build-fastrpc.sh <CC> <AR> <RANLIB>
+#
+#   CC, AR, RANLIB - absolute paths to the cross-compiler binaries already
+#                    resolved for the target platform (Linux ARM64: ARM GNU
+#                    Toolchain; Android ARM64: NDK clang toolchain)
 # ============================================================================
 set -euo pipefail
+
+CC_BIN="${1:?Usage: $0 <CC> <AR> <RANLIB>}"
+AR_BIN="${2:?Usage: $0 <CC> <AR> <RANLIB>}"
+RANLIB_BIN="${3:?Usage: $0 <CC> <AR> <RANLIB>}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FASTRPC_DIR="${SCRIPT_DIR}/../third-party/fastrpc"
@@ -62,51 +72,15 @@ if [[ -f "${FASTRPC_DIR}/src/.libs/libcdsprpc.so" ]]; then
     exit 0
 fi
 
-echo "==> Enabling arm64 multiarch (via ports.ubuntu.com) and installing fastrpc build dependencies"
-CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME}")"
-sudo dpkg --add-architecture arm64
-
-# The default archive (archive.ubuntu.com / security.ubuntu.com) only hosts
-# amd64 binaries; arm64 packages live on ports.ubuntu.com. Replace the
-# distro-default sources (which may be the deb822 ubuntu.sources file on
-# newer Ubuntu releases) with an amd64-only main archive plus an arm64-only
-# ports source, mirroring fastrpc's own CI (qualcomm/fastrpc ci/build.sh).
-sudo rm -f /etc/apt/sources.list.d/ubuntu.sources
-sudo tee /etc/apt/sources.list > /dev/null <<EOF
-deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME} main restricted universe multiverse
-deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-updates main restricted universe multiverse
-deb [arch=amd64] http://archive.ubuntu.com/ubuntu ${CODENAME}-backports main restricted universe multiverse
-deb [arch=amd64] http://security.ubuntu.com/ubuntu ${CODENAME}-security main restricted universe multiverse
-EOF
-sudo tee /etc/apt/sources.list.d/arm64-ports.list > /dev/null <<EOF
-deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME} main restricted universe multiverse
-deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-updates main restricted universe multiverse
-deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-backports main restricted universe multiverse
-deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-security main restricted universe multiverse
-EOF
-
-sudo apt-get clean
-sudo apt-get update -y
-sudo apt-get install -y --no-install-recommends \
-    automake autoconf libtool pkg-config \
-    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
-    libyaml-dev \
-    libyaml-0-2:arm64 libyaml-dev:arm64 \
-    libbsd-dev:arm64
-
 echo "==> Building fastrpc (${FASTRPC_DIR})"
 (
     cd "${FASTRPC_DIR}"
-    export CC=aarch64-linux-gnu-gcc
-    export CXX=aarch64-linux-gnu-g++
-    export AS=aarch64-linux-gnu-as
-    export LD=aarch64-linux-gnu-ld
-    export RANLIB=aarch64-linux-gnu-ranlib
-    export STRIP=aarch64-linux-gnu-strip
-    export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
-    export CFLAGS="-O2"
-    export CXXFLAGS="-O2"
-    ./gitcompile --host=aarch64-linux-gnu
+    export CC="${CC_BIN}"
+    export AR="${AR_BIN}"
+    export RANLIB="${RANLIB_BIN}"
+    bash autogen.sh
+    ./configure --host=aarch64-linux-android
+    make -C src libcdsprpc.la
 )
 
 if [[ ! -f "${FASTRPC_DIR}/src/.libs/libcdsprpc.so" ]]; then

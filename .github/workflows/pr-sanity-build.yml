@@ -1,11 +1,12 @@
 name: PR Sanity Build
 
 # Mandatory build gate for every PR targeting main.
-# Compiles both supported platforms (Linux ARM64 cross-compile and Windows
-# ARM64) using the exact command sequence documented in README.md, in both
-# static and shared library variants, across every platform-supported
-# backend. A broken build here must block merge — mark both jobs below as
-# required status checks in branch protection (done manually, not by CI).
+# Compiles all three supported platforms (Android ARM64, Linux ARM64
+# cross-compile, and Windows ARM64) using the exact command sequence
+# documented in README.md, across every platform-supported backend (Linux
+# ARM64 additionally in both static and shared library variants). A broken
+# build here must block merge — mark all jobs below as required status
+# checks in branch protection (done manually, not by CI).
 
 on:
   pull_request:
@@ -14,8 +15,42 @@ on:
 
 env:
   AARCH64_TOOLCHAIN_VERSION: "15.2.rel1"
+  ANDROID_NDK_VERSION: "r27c"
 
 jobs:
+  android-aarch64-sanity-build:
+    name: Android ARM64 sanity build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: true
+
+      - name: Cache Android NDK
+        id: ndk-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/android-ndk
+          key: android-ndk-${{ env.ANDROID_NDK_VERSION }}-linux
+
+      - name: Download Android NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          URL="https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip"
+          mkdir -p "${{ runner.temp }}/android-ndk"
+          curl -fL "${URL}" -o /tmp/ndk.zip
+          unzip -q /tmp/ndk.zip -d /tmp/ndk-extracted
+          mv /tmp/ndk-extracted/*/* "${{ runner.temp }}/android-ndk"/
+
+      - name: Build (android-aarch64, Release)
+        env:
+          ANDROID_NDK_PATH: ${{ runner.temp }}/android-ndk
+        run: |
+          chmod +x qcperf/ci/build-android-aarch64.sh
+          qcperf/ci/build-android-aarch64.sh Release
+
   linux-aarch64-sanity-build:
     name: Linux ARM64 sanity build (shared=${{ matrix.build_shared }})
     runs-on: ubuntu-latest
@@ -44,11 +79,6 @@ jobs:
           mkdir -p "${{ runner.temp }}/arm-gnu-toolchain"
           curl -fL "${URL}" -o /tmp/toolchain.tar.xz
           tar -xJf /tmp/toolchain.tar.xz -C "${{ runner.temp }}/arm-gnu-toolchain" --strip-components=1
-
-      - name: Build fastrpc (libcdsprpc, required by NPU backend)
-        run: |
-          chmod +x qcperf/ci/build-fastrpc.sh
-          qcperf/ci/build-fastrpc.sh
 
       - name: Build (linux-aarch64, Release, shared=${{ matrix.build_shared }})
         env:

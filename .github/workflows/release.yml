@@ -1,10 +1,12 @@
 name: Release
 
 # Tag-triggered release build.
-# Builds QcPerfCore for both supported platforms (Linux ARM64 cross-compile and
-# Windows ARM64), in both static and shared library variants, using the same
-# scripts as the PR sanity-build gate. Packages each build's library + public
-# headers and publishes them all to a GitHub Release for the pushed tag.
+# Builds QcPerfCore for all three supported platforms (Android ARM64, Linux
+# ARM64 cross-compile, and Windows ARM64) — Linux and Windows in both static
+# and shared library variants, Android as static only (per README) — using
+# the same scripts as the PR sanity-build gate. Packages each build's
+# library + public headers and publishes them all to a GitHub Release for
+# the pushed tag.
 #
 # Trigger: push a tag matching v<build>.<major>.<minor>.<patch>, e.g. v0.1.0.0
 
@@ -19,8 +21,65 @@ on:
 
 env:
   AARCH64_TOOLCHAIN_VERSION: "15.2.rel1"
+  ANDROID_NDK_VERSION: "r27c"
 
 jobs:
+  build-android-aarch64:
+    name: Build android-aarch64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          submodules: true
+
+      - name: Resolve version
+        id: version
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download Android NDK
+        run: |
+          set -euo pipefail
+          URL="https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip"
+          mkdir -p "${{ runner.temp }}/android-ndk"
+          curl -fL "${URL}" -o /tmp/ndk.zip
+          unzip -q /tmp/ndk.zip -d /tmp/ndk-extracted
+          mv /tmp/ndk-extracted/*/* "${{ runner.temp }}/android-ndk"/
+
+      - name: Build (android-aarch64, Release)
+        env:
+          ANDROID_NDK_PATH: ${{ runner.temp }}/android-ndk
+          PROJECT_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          chmod +x qcperf/ci/build-android-aarch64.sh
+          qcperf/ci/build-android-aarch64.sh Release
+
+      - name: Package artifact
+        id: package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          NAME="qcperfCore-${VERSION}-android-aarch64-static"
+          STAGE_DIR="staging/${NAME}"
+          mkdir -p "${STAGE_DIR}/lib" "${STAGE_DIR}/include"
+          cp "build-android-aarch64-release/libqcperfCore.a" "${STAGE_DIR}/lib/"
+          cp -r qcperf/core/inc/. "${STAGE_DIR}/include/"
+          cp -r qcperf/backends/inc/*.h "${STAGE_DIR}/include/" 2>/dev/null || true
+          tar -C staging -czf "${NAME}.tar.gz" "${NAME}"
+          echo "artifact=${NAME}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ steps.package.outputs.artifact }}
+          path: ${{ steps.package.outputs.artifact }}
+          retention-days: 7
+
   build-linux-aarch64:
     name: Build linux-aarch64 (shared=${{ matrix.build_shared }})
     runs-on: ubuntu-latest
@@ -49,11 +108,6 @@ jobs:
           mkdir -p "${{ runner.temp }}/arm-gnu-toolchain"
           curl -fL "${URL}" -o /tmp/toolchain.tar.xz
           tar -xJf /tmp/toolchain.tar.xz -C "${{ runner.temp }}/arm-gnu-toolchain" --strip-components=1
-
-      - name: Build fastrpc (libcdsprpc, required by NPU backend)
-        run: |
-          chmod +x qcperf/ci/build-fastrpc.sh
-          qcperf/ci/build-fastrpc.sh
 
       - name: Build (linux-aarch64, Release, shared=${{ matrix.build_shared }})
         env:
@@ -167,7 +221,7 @@ jobs:
 
   publish-release:
     name: Publish GitHub Release
-    needs: [build-linux-aarch64, build-windows-arm64]
+    needs: [build-android-aarch64, build-linux-aarch64, build-windows-arm64]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -189,5 +243,5 @@ jobs:
           set -euo pipefail
           gh release create "${TAG}" \
             --title "${TAG}" \
-            --notes "Automated release build for ${TAG}. Contains QcPerfCore static/shared artifacts for linux-aarch64 and windows-arm64." \
+            --notes "Automated release build for ${TAG}. Contains QcPerfCore static/shared artifacts for android-aarch64, linux-aarch64, and windows-arm64." \
             artifacts/*
