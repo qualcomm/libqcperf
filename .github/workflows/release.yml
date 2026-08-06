@@ -18,6 +18,9 @@ on:
         description: "Tag to build/release (e.g. v0.1.0.0)"
         required: true
 
+permissions:
+  contents: read
+
 env:
   AARCH64_TOOLCHAIN_VERSION: "15.2.rel1"
   ANDROID_NDK_VERSION: "r27c"
@@ -36,6 +39,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
           submodules: true
+          persist-credentials: false
 
       - name: Resolve version
         id: version
@@ -106,6 +110,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
           submodules: true
+          persist-credentials: false
 
       - name: Resolve version
         id: version
@@ -179,6 +184,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
           submodules: true
+          persist-credentials: false
 
       - name: Resolve version
         id: version
@@ -241,6 +247,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Download all artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0

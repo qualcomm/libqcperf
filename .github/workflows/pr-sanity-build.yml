@@ -13,6 +13,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   AARCH64_TOOLCHAIN_VERSION: "15.2.rel1"
   ANDROID_NDK_VERSION: "r27c"
@@ -30,6 +33,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           submodules: true
+          persist-credentials: false
 
       - name: Cache Android NDK
         id: ndk-cache
@@ -68,6 +72,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           submodules: true
+          persist-credentials: false
 
       - name: Cache ARM GNU Toolchain
         id: toolchain-cache
@@ -109,6 +114,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           submodules: true
+          persist-credentials: false
 
       - name: Build (windows-arm64, Release, shared=${{ matrix.build_shared }})
         shell: pwsh
