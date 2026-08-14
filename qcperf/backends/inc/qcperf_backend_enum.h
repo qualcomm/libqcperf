@@ -69,6 +69,7 @@ enum QcPerfBackendId {
     QC_PERF_BACKEND_POWER,          /**< Power monitoring backend (Windows ARM64) */
     QC_PERF_BACKEND_THERMAL,        /**< Thermal monitoring backend (Windows ARM64) */
     QC_PERF_BACKEND_WOS_CPU,        /**< CPU monitoring backend (Windows ARM64) */
+    QC_PERF_BACKEND_LINUX_THERMAL,  /**< Thermal monitoring backend (Linux, /sys/class/thermal) */
     QC_PERF_BACKEND_MAX,            /**< Sentinel value — total number of backend slots */
 };
 

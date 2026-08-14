@@ -75,6 +75,10 @@
 #include "wos_cpu.h"
 #endif
 
+#if defined(QCPERF_ENABLED_QCOM_LINUX_THERMAL)
+#include "linux_thermal.h"
+#endif
+
 /**
  * @typedef backend_init_t
  * @brief Function pointer type for backend initialization functions
@@ -125,6 +129,11 @@ static backend_init_t backend_init_fns[] = {
     &wos_cpu_create,                /* QC_PERF_BACKEND_WOS_CPU */
 #else
     NULL,                           /* QC_PERF_BACKEND_WOS_CPU (disabled) */
+#endif
+#if defined(QCPERF_ENABLED_QCOM_LINUX_THERMAL)
+    &qcperf_linux_thermal_backend_create, /* QC_PERF_BACKEND_LINUX_THERMAL */
+#else
+    NULL,                           /* QC_PERF_BACKEND_LINUX_THERMAL (disabled) */
 #endif
 };
 
