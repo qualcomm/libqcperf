@@ -43,6 +43,11 @@ if(QCPERF_ENABLED_QCOM_LINUX_NPU)
     add_subdirectory(qcom-dsp-npu)
 endif()
 
+if(QCPERF_ENABLED_WOS_NPU)
+    add_subdirectory(qcom-dsp)
+    add_subdirectory(qcom-dsp-npu)
+endif()
+
 # Windows ARM64 backends
 if(QCPERF_ENABLED_WOS_THERMAL)
     add_subdirectory(wos-thermal)

@@ -59,7 +59,7 @@
 #include "qcom_linux_cpu.h"
 #endif
 
-#if defined(QCPERF_ENABLED_QCOM_LINUX_NPU)
+#if defined(QCPERF_ENABLED_QCOM_LINUX_NPU) || defined(QCPERF_ENABLED_WOS_NPU)
 #include "qcom_dsp_npu.h"
 #endif
 
@@ -106,7 +106,7 @@ static backend_init_t backend_init_fns[] = {
 #else
     NULL,                           /* QC_PERF_BACKEND_QCOM_LINUX_CPU (disabled) */
 #endif
-#if defined(QCPERF_ENABLED_QCOM_LINUX_NPU)
+#if defined(QCPERF_ENABLED_QCOM_LINUX_NPU) || defined(QCPERF_ENABLED_WOS_NPU)
     &qcperf_dsp_npu_create,         /* QC_PERF_BACKEND_DSP_NPU */
 #else
     NULL,                           /* QC_PERF_BACKEND_DSP_NPU (disabled) */

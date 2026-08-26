@@ -497,7 +497,11 @@ static void* get_dsp_npu_data(void* param) {
 
                         // Sleep for the sampling rate
                         if (g_is_thread_running) {
+#ifdef QCPERF_PLATFORM_WINDOWS
+                            Sleep((DWORD)(request->sampling_rate));
+#else
                             usleep((useconds_t)(request->sampling_rate * 1000));
+#endif
                         }
                     }
 

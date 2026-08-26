@@ -1,0 +1,364 @@
+/*
+    Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted (subject to the limitations in the
+    disclaimer below) provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above
+          copyright notice, this list of conditions and the following
+          disclaimer in the documentation and/or other materials provided
+          with the distribution.
+        * Neither the name of Qualcomm Technologies, Inc. nor the names of its
+          contributors may be used to endorse or promote products derived
+          from this software without specific prior written permission.
+    NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
+    GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+    HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+    IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+    IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+    IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#ifndef _DSPQUERYSTUB_C
+#define _DSPQUERYSTUB_C
+
+#include "dspquery_stub_wos.h"
+#include "rpc_symbols.h"
+#include <string.h>
+#include <stdint.h>
+
+#ifndef _QAIC_ENV_H
+#define _QAIC_ENV_H
+
+#ifdef __GNUC__
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#else
+#pragma GCC diagnostic ignored "-Wpragmas"
+#endif
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+#ifndef _ATTRIBUTE_UNUSED
+#ifdef _WIN32
+#define _ATTRIBUTE_UNUSED
+#else
+#define _ATTRIBUTE_UNUSED __attribute__ ((unused))
+#endif
+#endif
+
+#ifndef __QAIC_REMOTE
+#define __QAIC_REMOTE(ff) ff
+#endif
+
+#ifndef __QAIC_HEADER
+#define __QAIC_HEADER(ff) ff
+#endif
+
+#ifndef __QAIC_HEADER_EXPORT
+#define __QAIC_HEADER_EXPORT
+#endif
+
+#ifndef __QAIC_HEADER_ATTRIBUTE
+#define __QAIC_HEADER_ATTRIBUTE
+#endif
+
+#ifndef __QAIC_IMPL
+#define __QAIC_IMPL(ff) ff
+#endif
+
+#ifndef __QAIC_IMPL_EXPORT
+#define __QAIC_IMPL_EXPORT
+#endif
+
+#ifndef __QAIC_IMPL_ATTRIBUTE
+#define __QAIC_IMPL_ATTRIBUTE
+#endif
+
+#ifndef __QAIC_STUB
+#define __QAIC_STUB(ff) ff
+#endif
+
+#ifndef __QAIC_STUB_EXPORT
+#define __QAIC_STUB_EXPORT
+#endif
+
+#ifndef __QAIC_STUB_ATTRIBUTE
+#define __QAIC_STUB_ATTRIBUTE
+#endif
+
+#define _OFFSET(src, sof)  ((void*)(((char*)(src)) + (sof)))
+
+#define _COPY(dst, dof, src, sof, sz)  \
+   do {\
+         struct __copy { \
+            char ar[sz]; \
+         };\
+         *(struct __copy*)_OFFSET(dst, dof) = *(struct __copy*)_OFFSET(src, sof);\
+   } while (0)
+
+#include "AEEStdErr.h"
+
+#define _TRY(ee, func) \
+   do { \
+      if (AEE_SUCCESS != ((ee) = func)) {\
+         goto ee##bail;\
+      } \
+   } while (0)
+
+#define _CATCH(exception) exception##bail: if (exception != AEE_SUCCESS)
+
+#endif // _QAIC_ENV_H
+
+#ifndef SLIM_H
+#define SLIM_H
+
+#include <stdint.h>
+
+#define PARAMETER_IN       0x0
+#define PARAMETER_OUT      0x1
+#define PARAMETER_INOUT    0x2
+#define PARAMETER_ROUT     0x3
+#define PARAMETER_INROUT   0x4
+
+#define TYPE_OBJECT             0x0
+#define TYPE_INTERFACE          0x1
+#define TYPE_PRIMITIVE          0x2
+#define TYPE_ENUM               0x3
+#define TYPE_STRING             0x4
+#define TYPE_WSTRING            0x5
+#define TYPE_STRUCTURE          0x6
+#define TYPE_UNION              0x7
+#define TYPE_ARRAY              0x8
+#define TYPE_SEQUENCE           0x9
+
+#define TYPE_COMPLEX_STRUCTURE  (0x10 | TYPE_STRUCTURE)
+#define TYPE_COMPLEX_UNION      (0x10 | TYPE_UNION)
+#define TYPE_COMPLEX_ARRAY      (0x10 | TYPE_ARRAY)
+#define TYPE_COMPLEX_SEQUENCE   (0x10 | TYPE_SEQUENCE)
+
+typedef struct Type Type;
+
+#define INHERIT_TYPE\
+   int32_t nativeSize;\
+   union {\
+      struct {\
+         const uintptr_t         p1;\
+         const uintptr_t         p2;\
+      } _cast;\
+      struct {\
+         uint32_t  iid;\
+         uint32_t  bNotNil;\
+      } object;\
+      struct {\
+         const Type  *arrayType;\
+         int32_t      nItems;\
+      } array;\
+      struct {\
+         const Type *seqType;\
+         int32_t      nMaxLen;\
+      } seqSimple; \
+      struct {\
+         uint32_t bFloating;\
+         uint32_t bSigned;\
+      } prim; \
+      const SequenceType* seqComplex;\
+      const UnionType  *unionType;\
+      const StructType *structType;\
+      int32_t         stringMaxLen;\
+      uint8_t        bInterfaceNotNil;\
+   } param;\
+   uint8_t    type;\
+   uint8_t    nativeAlignment
+
+typedef struct UnionType UnionType;
+typedef struct StructType StructType;
+typedef struct SequenceType SequenceType;
+struct Type {
+   INHERIT_TYPE;
+};
+
+struct SequenceType {
+   const Type *         seqType;
+   uint32_t               nMaxLen;
+   uint32_t               inSize;
+   uint32_t               routSizePrimIn;
+   uint32_t               routSizePrimROut;
+};
+
+typedef union CaseValuePtr CaseValuePtr;
+union CaseValuePtr {
+   const uint8_t*   value8s;
+   const uint16_t*  value16s;
+   const uint32_t*  value32s;
+   const uint64_t*  value64s;
+};
+
+struct UnionType {
+   const Type           *descriptor;
+   uint32_t               nCases;
+   const CaseValuePtr   caseValues;
+   const Type * const   *cases;
+   int32_t               inSize;
+   int32_t               routSizePrimIn;
+   int32_t               routSizePrimROut;
+   uint8_t                inAlignment;
+   uint8_t                routAlignmentPrimIn;
+   uint8_t                routAlignmentPrimROut;
+   uint8_t                inCaseAlignment;
+   uint8_t                routCaseAlignmentPrimIn;
+   uint8_t                routCaseAlignmentPrimROut;
+   uint8_t                nativeCaseAlignment;
+   uint8_t              bDefaultCase;
+};
+
+struct StructType {
+   uint32_t               nMembers;
+   const Type * const   *members;
+   int32_t               inSize;
+   int32_t               routSizePrimIn;
+   int32_t               routSizePrimROut;
+   uint8_t                inAlignment;
+   uint8_t                routAlignmentPrimIn;
+   uint8_t                routAlignmentPrimROut;
+};
+
+typedef struct Parameter Parameter;
+struct Parameter {
+   INHERIT_TYPE;
+   uint8_t    mode;
+   uint8_t  bNotNil;
+};
+
+#define SLIM_IFPTR32(is32,is64) (sizeof(uintptr_t) == 4 ? (is32) : (is64))
+#define SLIM_SCALARS_IS_DYNAMIC(u) (((u) & 0x00ffffff) == 0x00ffffff)
+
+typedef struct Method Method;
+struct Method {
+   uint32_t                    uScalars;
+   int32_t                     primInSize;
+   int32_t                     primROutSize;
+   int                         maxArgs;
+   int                         numParams;
+   const Parameter * const     *params;
+   uint8_t                       primInAlignment;
+   uint8_t                       primROutAlignment;
+};
+
+typedef struct Interface Interface;
+
+struct Interface {
+   int                            nMethods;
+   const Method  * const          *methodArray;
+   int                            nIIds;
+   const uint32_t                   *iids;
+   const uint16_t*                  methodStringArray;
+   const uint16_t*                  methodStrings;
+   const char*                    strings;
+};
+
+#endif //SLIM_H
+
+
+#ifndef _SYSMONQUERY_SLIM_H
+#define _SYSMONQUERY_SLIM_H
+#include <stdint.h>
+
+#ifndef __QAIC_SLIM
+#define __QAIC_SLIM(ff) ff
+#endif
+#ifndef __QAIC_SLIM_EXPORT
+#define __QAIC_SLIM_EXPORT
+#endif
+
+static const Type types[1];
+static const Type types[1] = {{0x1,{{(const uintptr_t)0,(const uintptr_t)0}}, 2,0x1}};
+static const Parameter parameters[6] = {{SLIM_IFPTR32(0x8,0x10),{{(const uintptr_t)0x0,0}}, 4,SLIM_IFPTR32(0x4,0x8),0,0},{SLIM_IFPTR32(0x4,0x8),{{(const uintptr_t)0xdeadc0de,(const uintptr_t)0}}, 0,SLIM_IFPTR32(0x4,0x8),3,0},{SLIM_IFPTR32(0x4,0x8),{{(const uintptr_t)0xdeadc0de,(const uintptr_t)0}}, 0,SLIM_IFPTR32(0x4,0x8),0,0},{0x4,{{(const uintptr_t)0,(const uintptr_t)0}}, 2,0x4,0,0},{SLIM_IFPTR32(0x8,0x10),{{(const uintptr_t)&(types[0]),(const uintptr_t)0x0}}, 9,SLIM_IFPTR32(0x4,0x8),3,0},{0x4,{{(const uintptr_t)0,(const uintptr_t)1}}, 2,0x4,3,0}};
+static const Parameter* const parameterArrays[6] = {(&(parameters[4])),(&(parameters[5])),(&(parameters[3])),(&(parameters[0])),(&(parameters[1])),(&(parameters[2]))};
+static const Method methods[4] = {{REMOTE_SCALARS_MAKEX(0,0,0x2,0x0,0x0,0x1),0x4,0x0,2,2,(&(parameterArrays[3])),0x4,0x1},{REMOTE_SCALARS_MAKEX(0,0,0x0,0x0,0x1,0x0),0x0,0x0,1,1,(&(parameterArrays[5])),0x1,0x0},{REMOTE_SCALARS_MAKEX(0,0,0x1,0x0,0x0,0x0),0x4,0x0,1,1,(&(parameterArrays[2])),0x4,0x0},{REMOTE_SCALARS_MAKEX(0,0,0x1,0x2,0x0,0x0),0x8,0x4,5,3,(&(parameterArrays[0])),0x4,0x4}};
+static const Method* const methodArrays[5] = {&(methods[0]),&(methods[1]),&(methods[2]),&(methods[3]),&(methods[2])};
+static const char strings[70] = "profdata_ptr\0get_profdata\0no_metrics\0npu_flag\0deinit\0close\0open\0uri\0h\0";
+static const uint16_t methodStrings[13] = {13,0,26,37,59,64,68,46,37,48,37,53,68};
+static const uint16_t methodStringsArrays[5] = {4,11,9,0,7};
+__QAIC_SLIM_EXPORT const Interface __QAIC_SLIM(sysmonquery_slim) = {5,&(methodArrays[0]),0,0,&(methodStringsArrays [0]),methodStrings,strings};
+#endif //_SYSMONQUERY_SLIM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+__QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_open)(const char* uri, remote_handle64* h, int q6Processor) __QAIC_STUB_ATTRIBUTE {
+   return __QAIC_REMOTE(premote_handle64_open[q6Processor])(uri, h);
+}
+
+__QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_close)(remote_handle64 h, int q6Processor) __QAIC_STUB_ATTRIBUTE {
+   return __QAIC_REMOTE(premote_handle64_close[q6Processor])(h);
+}
+
+static __inline int _stub_method(remote_handle64 _handle, uint32_t _mid, uint32_t _in0[1], int q6Processor) {
+   remote_arg _pra[1] = {0};
+   uint32_t _primIn[1] = {0};
+   int _nErr = 0;
+   _pra[0].buf.pv = (void*)_primIn;
+   _pra[0].buf.nLen = sizeof(_primIn);
+   _COPY(_primIn, 0, _in0, 0, 4);
+   _TRY(_nErr, __QAIC_REMOTE(premote_handle64_invoke[q6Processor])(_handle, REMOTE_SCALARS_MAKEX(0, _mid, 1, 0, 0, 0), _pra));
+   _CATCH(_nErr) {}
+   return _nErr;
+}
+
+__QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_init)(remote_handle64 _handle, unsigned int npu_flag, int q6Processor) __QAIC_STUB_ATTRIBUTE {
+   uint32_t _mid = 2;
+   return _stub_method(_handle, _mid, (uint32_t*)&npu_flag, q6Processor);
+}
+
+static __inline int _stub_method_1(remote_handle64 _handle, uint32_t _mid, char* _rout0[1], uint32_t _rout0Len[1], uint32_t _rout1[1], uint32_t _in2[1], int q6Processor) {
+   int _numIn[1] = {0};
+   remote_arg _pra[3] = {0};
+   uint32_t _primIn[2] = {0};
+   uint32_t _primROut[1] = {0};
+   remote_arg* _praIn;
+   remote_arg* _praROut;
+   int _nErr = 0;
+   _numIn[0] = 0;
+   _pra[0].buf.pv = (void*)_primIn;
+   _pra[0].buf.nLen = sizeof(_primIn);
+   _pra[(_numIn[0] + 1)].buf.pv = (void*)_primROut;
+   _pra[(_numIn[0] + 1)].buf.nLen = sizeof(_primROut);
+   _COPY(_primIn, 0, _rout0Len, 0, 4);
+   _praIn = (_pra + 1);
+   _praROut = (_praIn + _numIn[0] + 1);
+   _praROut[0].buf.pv = _rout0[0];
+   _praROut[0].buf.nLen = (1 * _rout0Len[0]);
+   _COPY(_primIn, 4, _in2, 0, 4);
+   _TRY(_nErr, __QAIC_REMOTE(premote_handle64_invoke[q6Processor])(_handle, REMOTE_SCALARS_MAKEX(0, _mid, 1, 2, 0, 0), _pra));
+   _COPY(_rout1, 0, _primROut, 0, 4);
+   _CATCH(_nErr) {}
+   return _nErr;
+}
+
+__QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_get_profdata)(remote_handle64 _handle, unsigned char* profdata_ptr, int profdata_ptrLen, int* no_metrics, unsigned int npu_flag, int q6Processor) __QAIC_STUB_ATTRIBUTE {
+   uint32_t _mid = 3;
+   return _stub_method_1(_handle, _mid, (char**)&profdata_ptr, (uint32_t*)&profdata_ptrLen, (uint32_t*)no_metrics, (uint32_t*)&npu_flag, q6Processor);
+}
+
+__QAIC_STUB_EXPORT int __QAIC_STUB(sysmonquery_deinit)(remote_handle64 _handle, unsigned int npu_flag, int q6Processor) __QAIC_STUB_ATTRIBUTE {
+   uint32_t _mid = 4;
+   return _stub_method(_handle, _mid, (uint32_t*)&npu_flag, q6Processor);
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //_DSPQUERYSTUB_C

@@ -56,6 +56,7 @@ Originally inspired by the Qualcomm Profiler tool, libqcperf is now available as
 | **Power Backend** | Windows on Snapdragon (WoS) | `POWER` | `QCPERF_ENABLED_WOS_POWER` | Measures power consumption across various system components | [wos_power_backend_info.h](qcperf/backends/wos-power-backend/inc/wos_power_backend_info.h) |
 | **Linux CPU Backend** | Qcom Linux | `CPU` | `QCPERF_ENABLED_QCOM_LINUX_CPU` | Monitors CPU load, frequency, effective utilization, steal time, and DCVS frequency limit per core (up to 18 cores) | [qcom_linux_cpu_info.h](qcperf/backends/qcom-linux-cpu/inc/qcom_linux_cpu_info.h) |
 | **DSP NPU Backend** | Qcom Linux | `NPU` | `QCPERF_ENABLED_QCOM_LINUX_NPU` | Monitors Neural Processing Unit (NPU) performance metrics including Q6 utilization, Q6 clock frequency, HVX utilization, and HMX utilization | [qcom_dsp_npu_info.h](qcperf/backends/qcom-dsp-npu/inc/qcom_dsp_npu_info.h) |
+| **DSP NPU Backend** | Windows on Snapdragon (WoS) | `NPU` | `QCPERF_ENABLED_WOS_NPU` | Monitors Neural Processing Unit (NPU) performance metrics including Q6 utilization, Q6 clock frequency, HVX utilization, and HMX utilization | [qcom_dsp_npu_info.h](qcperf/backends/qcom-dsp-npu/inc/qcom_dsp_npu_info.h) |
 | **Dummy Backend** | All | `DUMMY` | `QCPERF_ENABLED_DUMMY` | Reference implementation for testing and development | [dummy_info.h](qcperf/backends/dummy/inc/dummy_info.h) |
 
 > **Note:** Each backend's info.h file contains detailed information about supported capability, metrics, sampling rates, and streaming rates.
@@ -203,6 +204,8 @@ cmake --build --preset linux-aarch64-release-shared
 ### Windows ARM64 Compilation
 
 To build the library for Windows on ARM64 platforms:
+
+**Supported backends:** `DUMMY`, `THERMAL`, `POWER`, `CPU`, `NPU`
 
 ```bash
 # Clone the repository
