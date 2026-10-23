@@ -53,6 +53,15 @@ if(QCPERF_ENABLED_QCOM_LINUX_CPU)
     )
 endif()
 
+if(QCPERF_ENABLED_QCOM_LINUX_GPU)
+    target_include_directories(QcPerfBackends INTERFACE
+        ${CMAKE_SOURCE_DIR}/backends/qcom-linux-gpu/inc
+    )
+    target_link_libraries(QcPerfBackends INTERFACE
+        QcPerfQcomLinuxGpuBackend
+    )
+endif()
+
 if(QCPERF_ENABLED_QCOM_LINUX_NPU OR QCPERF_ENABLED_WOS_NPU)
     target_include_directories(QcPerfBackends INTERFACE
         ${CMAKE_SOURCE_DIR}/backends/qcom-dsp-npu/inc
