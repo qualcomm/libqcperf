@@ -56,6 +56,7 @@ Originally inspired by the Qualcomm Profiler tool, libqcperf is now available as
 | **Power Backend** | Windows on Snapdragon (WoS) | `POWER` | `QCPERF_ENABLED_WOS_POWER` | Measures power consumption across various system components | [wos_power_backend_info.h](qcperf/backends/wos-power-backend/inc/wos_power_backend_info.h) |
 | **WoS CPU Backend** | Windows on Snapdragon (WoS) | `CPU` | `QCPERF_ENABLED_WOS_CPU` | Monitors total CPU utilization and average frequency, plus per-core utilization, current frequency, and max frequency | [wos_cpu_info.h](qcperf/backends/wos-cpu/inc/wos_cpu_info.h) |
 | **Linux CPU Backend** | Qcom Linux | `CPU` | `QCPERF_ENABLED_QCOM_LINUX_CPU` | Monitors CPU load, frequency, effective utilization, steal time, and DCVS frequency limit per core (up to 18 cores) | [qcom_linux_cpu_info.h](qcperf/backends/qcom-linux-cpu/inc/qcom_linux_cpu_info.h) |
+| **Linux GPU Backend** | Qcom Linux | `GPU` | `QCPERF_ENABLED_QCOM_LINUX_GPU` | Monitors Adreno GPU utilization and clock frequency from the kgsl sysfs nodes | [qcom_linux_gpu_info.h](qcperf/backends/qcom-linux-gpu/inc/qcom_linux_gpu_info.h) |
 | **DSP NPU Backend** | Qcom Linux | `NPU` | `QCPERF_ENABLED_QCOM_LINUX_NPU` | Monitors Neural Processing Unit (NPU) performance metrics including Q6 utilization, Q6 clock frequency, HVX utilization, and HMX utilization | [qcom_dsp_npu_info.h](qcperf/backends/qcom-dsp-npu/inc/qcom_dsp_npu_info.h) |
 | **Linux Thermal Backend** | Qcom Linux | `THERMAL` | `QCPERF_ENABLED_QCOM_LINUX_THERMAL` | Monitors kernel thermal-zone temperatures and cooling-device throttle levels via `/sys/class/thermal`, aggregated into 16 temperature and 12 cooling domains (CPU, GPU, NPU, DDR, Modem, etc.); only domains with sensors present on the platform are advertised | [linux_thermal_info.h](qcperf/backends/linux-thermal/inc/linux_thermal_info.h) |
 | **DSP NPU Backend** | Windows on Snapdragon (WoS) | `NPU` | `QCPERF_ENABLED_WOS_NPU` | Monitors Neural Processing Unit (NPU) performance metrics including Q6 utilization, Q6 clock frequency, HVX utilization, and HMX utilization | [qcom_dsp_npu_info.h](qcperf/backends/qcom-dsp-npu/inc/qcom_dsp_npu_info.h) |
@@ -240,7 +241,7 @@ QcPerfCoreTest <backend_id> <sampling_rate_ms> <streaming_rate_ms> <verbose>
 
 | Argument | Description |
 |----------|-------------|
-| `backend_id` | Numeric backend to connect to: `0` = DUMMY, `1` = CPU, `2` = NPU |
+| `backend_id` | Numeric backend to connect to: `0` = DUMMY, `1` = CPU, `2` = NPU, `7` = GPU |
 | `sampling_rate_ms` | Sampling rate in milliseconds |
 | `streaming_rate_ms` | Streaming (callback) rate in milliseconds |
 | `verbose` | `0` = off, `1` = on |

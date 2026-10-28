@@ -63,6 +63,10 @@
 #include "qcom_dsp_npu.h"
 #endif
 
+#if defined(QCPERF_ENABLED_QCOM_LINUX_GPU)
+#include "qcom_linux_gpu.h"
+#endif
+
 #if defined(QCPERF_ENABLED_WOS_POWER)
 #include "wos_power_backend.h"
 #endif
@@ -134,6 +138,11 @@ static backend_init_t backend_init_fns[] = {
     &qcperf_linux_thermal_backend_create, /* QC_PERF_BACKEND_LINUX_THERMAL */
 #else
     NULL,                           /* QC_PERF_BACKEND_LINUX_THERMAL (disabled) */
+#endif
+#if defined(QCPERF_ENABLED_QCOM_LINUX_GPU)
+    &qcperf_qcom_linux_gpu_create,  /* QC_PERF_BACKEND_QCOM_LINUX_GPU */
+#else
+    NULL,                           /* QC_PERF_BACKEND_QCOM_LINUX_GPU (disabled) */
 #endif
 };
 
