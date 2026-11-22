@@ -391,8 +391,12 @@ static enum QcPerfReturnCode qcom_linux_cpu_start(struct QcPerfRequest *request)
             snprintf((char *)thread_attrs.thread_name, THREAD_NAME_SIZE, "qcperf_cpu_thread");
             thread_attrs.thread_name_len = (uint8_t)strlen((char *)thread_attrs.thread_name);
 
+            /* Set before the thread exists so a stop() right after start() still joins it. */
+            g_is_thread_running = true;
+
             thread_ret = thread_create(&thread_attrs, &g_thread_info);
             if (RET_QTHREAD_CREATE_SUCCESS != thread_ret) {
+                g_is_thread_running = false;
                 SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Failed to create CPU collection thread");
                 ret = QC_PERF_RETURN_CODE_FAILED;
             } else {
@@ -502,8 +506,6 @@ static void *qcom_linux_cpu_collect_data(void *param) {
     double capacity_factor         = 0.0;
     enum QcPerfReturnCode stat_ret = QC_PERF_RETURN_CODE_FAILED;
     enum QcPerfReturnCode dcvs_ret = QC_PERF_RETURN_CODE_FAILED;
-
-    g_is_thread_running = true;
 
     if (NULL == request) {
         SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Request parameter is NULL in collection thread");

@@ -335,9 +335,13 @@ static enum QcPerfReturnCode dummy_start(struct QcPerfRequest* request) {
             snprintf((char*)thread_attrs.thread_name, THREAD_NAME_SIZE, "qcperf_dummy_thread");
             thread_attrs.thread_name_len = (uint8_t)strlen((char*)thread_attrs.thread_name);
 
+            /* Set before the thread exists so a stop() right after start() still joins it. */
+            g_is_thread_running = true;
+
             thread_ret = thread_create(&thread_attrs, &g_thread_info);
 
             if (RET_QTHREAD_CREATE_SUCCESS != thread_ret) {
+                g_is_thread_running = false;
                 SEND_MESSAGE(QC_PERF_MESSAGE_LEVEL_ERROR, "Failed to create performance monitoring thread");
                 ret = QC_PERF_RETURN_CODE_FAILED;
             } else {
@@ -512,8 +516,6 @@ static void* get_dummy_data(void* param) {
     uint32_t sample_count = 0;
 
     if (NULL != request) {
-        g_is_thread_running = true;
-
         for (int i = 0; i < g_backend_info.capabilities_list_length; i++) {
             if (g_backend_info.capabilities_list[i].capability_id == request->capability_id) {
                 capability_info = &g_backend_info.capabilities_list[i];
